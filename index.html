@@ -7,17 +7,17 @@
 <meta name="theme-color" content="#a8e6cf">
 <link rel="manifest" href="manifest.json">
 <style>
-* { box-sizing:border-box;margin:0;padding:0; }
-html,body {height:100%;font-family:"Poppins",sans-serif;background:#d9f4e0;display:flex;flex-direction:column;}
-header {text-align:center;padding:15px;background:#1b5e20;color:#fff;font-size:1.5em;font-weight:bold;}
-.controls {padding:10px;background:#fff;display:flex;flex-direction:column;gap:10px;z-index:10;}
-select,label {font-size:1em;padding:8px;}
-.radio-group {display:flex;gap:10px;}
-#modGantianBtn {padding:8px;background:#2e7d32;color:#fff;border:none;border-radius:6px;font-weight:bold;cursor:pointer;width:150px;}
-#modGantianBtn.active {background:#6a1b9a;}
-#reader {flex:1;background:#000;position:relative;display:flex;justify-content:center;align-items:center;}
-.cam-icon {position:absolute;top:10px;left:10px;width:40px;height:40px;background:#fff;border-radius:50%;display:flex;justify-content:center;align-items:center;cursor:pointer;z-index:20;font-size:20px;}
-.status {text-align:center;padding:8px;background:rgba(0,0,0,0.5);color:#fff;position:absolute;bottom:10px;left:50%;transform:translateX(-50%);border-radius:6px;font-size:0.9em;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:"Poppins",sans-serif;background:#d9f4e0;display:flex;flex-direction:column;}
+header{padding:15px;text-align:center;background:#1b5e20;color:#fff;font-size:1.5em;font-weight:bold;}
+.controls{padding:10px;background:#fff;display:flex;flex-direction:column;gap:10px;z-index:10;}
+select,label{font-size:1em;padding:8px;}
+.radio-group{display:flex;gap:10px;}
+#modGantianBtn{padding:8px;background:#2e7d32;color:#fff;border:none;border-radius:6px;font-weight:bold;cursor:pointer;width:150px;}
+#modGantianBtn.active{background:#6a1b9a;}
+#reader{flex:1;background:#000;position:relative;display:flex;justify-content:center;align-items:center;}
+.cam-icon{position:absolute;top:10px;left:10px;width:40px;height:40px;background:#fff;border-radius:50%;display:flex;justify-content:center;align-items:center;cursor:pointer;z-index:20;font-size:20px;}
+.status{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);color:#fff;background:rgba(0,0,0,0.5);padding:5px 10px;border-radius:6px;font-size:0.9em;}
 </style>
 </head>
 <body>
@@ -39,45 +39,45 @@ select,label {font-size:1em;padding:8px;}
   <div class="status" id="status">📷 Sila pilih nama guru</div>
 </div>
 
-<script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+<script src="html5-qrcode.min.js"></script>
 <script>
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzorm9vEvPqLgUtYnxFQ6eElcH2AMwodPwZCzdj4XZdfsrP-oilXV_PnVsAtChPtAOF/exec";
-const namaGuru = document.getElementById('namaGuru');
-const status = document.getElementById('status');
-const modBtn = document.getElementById('modGantianBtn');
-const switchCam = document.getElementById('switchCamera');
-let html5QrCode = null;
-let cameras = [];
-let currentCameraIndex = 0;
-let modGantian = false;
+const namaGuru=document.getElementById('namaGuru');
+const status=document.getElementById('status');
+const modBtn=document.getElementById('modGantianBtn');
+const switchCam=document.getElementById('switchCamera');
+let html5QrCode=null;
+let cameras=[];
+let currentCameraIndex=0;
+let modGantian=false;
 
 // toggle Mod Gantian
-modBtn.addEventListener('click',()=>{ 
-  modGantian=!modGantian; 
+modBtn.addEventListener('click',()=>{
+  modGantian=!modGantian;
   modBtn.classList.toggle('active',modGantian);
 });
 
-// load teacher list from Google Sheet via Apps Script
+// fetch teacher list from Google Sheet
 fetch(WEBAPP_URL+"?action=getTeachers")
-  .then(res => res.json())
-  .then(data => {
-    data.forEach(n=>{
-      const o=document.createElement('option'); o.value=n; o.textContent=n;
-      namaGuru.appendChild(o);
-    });
+.then(res=>res.json())
+.then(data=>{
+  data.forEach(n=>{
+    const o=document.createElement('option'); o.value=n; o.textContent=n;
+    namaGuru.appendChild(o);
   });
+});
 
 // start camera
 async function startCamera(cameraId){
   if(html5QrCode){ try{ await html5QrCode.stop(); } catch(e){} }
-  html5QrCode = new Html5Qrcode("reader");
+  html5QrCode=new Html5Qrcode("reader");
   html5QrCode.start(
     cameraId,
     { fps:10, qrbox:250, experimentalFeatures:{useBarCodeDetectorIfSupported:true} },
     qr=>{
       status.textContent="QR dikesan: "+qr;
-      navigator.vibrate([200,100,200]); // vibrate
-      const slot = document.querySelector('input[name="slot"]:checked')?.value||"30";
+      navigator.vibrate([200,100,200]);
+      const slot=document.querySelector('input[name="slot"]:checked')?.value||"30";
       fetch(WEBAPP_URL,{
         method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -96,12 +96,12 @@ async function startCamera(cameraId){
 }
 
 // pilih nama guru
-namaGuru.addEventListener('change', async ()=>{
+namaGuru.addEventListener('change',async ()=>{
   if(!namaGuru.value){ status.textContent="📷 Sila pilih nama guru"; return; }
   status.textContent="🔍 Mengaktifkan kamera...";
-  try{ cameras = await Html5Qrcode.getCameras(); } catch(e){ status.textContent="❌ Tiada kamera"; return; }
+  try{ cameras=await Html5Qrcode.getCameras(); } catch(e){ status.textContent="❌ Tiada kamera"; return; }
   if(cameras.length===0){ status.textContent="❌ Tiada kamera"; return; }
-  currentCameraIndex = 0;
+  currentCameraIndex=0;
   startCamera(cameras[currentCameraIndex].id);
 });
 
@@ -112,6 +112,5 @@ switchCam.addEventListener('click',()=>{
   startCamera(cameras[currentCameraIndex].id);
 });
 </script>
-
 </body>
 </html>
