@@ -4,11 +4,8 @@
   <meta charset="UTF-8">
   <title>e-PDP SMK Semenchu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Tema warna -->
   <meta name="theme-color" content="#d9f4e0">
 
-  <!-- Style asas -->
   <style>
     body {
       margin: 0;
@@ -22,11 +19,40 @@
 
     .container {
       background: #ffffff;
+      width: 95%;
+      max-width: 1200px;
+      border-radius: 18px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+      overflow: hidden;
+    }
+
+    /* MENU BAR */
+    .menu-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      background: #145a32;
+      padding: 12px;
+    }
+
+    .menu-bar a {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 20px;
+      transition: background 0.2s;
+      font-size: 0.95rem;
+    }
+
+    .menu-bar a:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* CONTENT */
+    .content {
       padding: 40px 30px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-      max-width: 900px;
-      width: 90%;
       text-align: center;
     }
 
@@ -44,12 +70,21 @@
 
     .badge {
       display: inline-block;
-      margin-top: 20px;
-      padding: 8px 18px;
+      margin-top: 25px;
+      padding: 10px 20px;
       border-radius: 20px;
       background: #145a32;
       color: #fff;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.6rem;
+      }
+      .content {
+        padding: 30px 20px;
+      }
     }
   </style>
 </head>
@@ -57,12 +92,27 @@
 <body>
 
   <div class="container">
-    <h1>e-PDP SMK Semenchu</h1>
-    <p>Sistem Rekod Pengajaran & Pembelajaran Digital</p>
 
-    <div class="badge">
-      Laman Web Aktif ✔
+    <!-- MENU BAR -->
+    <div class="menu-bar">
+      <a href="#">UTAMA</a>
+      <a href="carian.html">CARIAN</a>
+      <a href="#">JADUAL GURU</a>
+      <a href="#">JADUAL KELAS</a>
+      <a href="#">PENTADBIR & GURU</a>
+      <a href="#">JADUAL INDIVIDU</a>
     </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+      <h1>e-PDP SMK Semenchu</h1>
+      <p>Sistem Rekod Pengajaran & Pembelajaran Digital</p>
+
+      <div class="badge">
+        Laman Web Aktif ✔
+      </div>
+    </div>
+
   </div>
 
 </body>
