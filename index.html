@@ -17,30 +17,33 @@
 }
 
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:Segoe UI, Arial, sans-serif;
   background:var(--bg);
+  min-height:100vh;
+  overflow:hidden; /* ❗ kunci scroll luar */
 }
 
 .container{
   width:95%;
   max-width:1500px;
-  margin:20px auto;
+  margin:10px auto 0;
   background:#fff;
   border-radius:18px;
   box-shadow:0 12px 28px rgba(0,0,0,.15);
   overflow:hidden;
 }
 
-/* MENU */
+/* ===== MENU ===== */
 .menu{
   display:flex;
   gap:8px;
   padding:12px;
   background:var(--green);
-  flex-wrap:wrap;
   justify-content:center;
+  flex-wrap:wrap;
 }
 .menu button{
   background:none;
@@ -51,14 +54,13 @@ body{
   border-radius:20px;
   cursor:pointer;
 }
-.menu button.active,
-.menu button:hover{
-  background:rgba(255,255,255,.2);
+.menu button.active{
+  background:rgba(255,255,255,.25);
 }
 
-/* HEADER */
+/* ===== HEADER ===== */
 .header{
-  padding:20px;
+  padding:16px;
   text-align:center;
 }
 .header h1{
@@ -69,12 +71,12 @@ body{
   margin:6px 0 0;
 }
 
-/* TARIKH */
+/* ===== TARIKH ===== */
 .date-box{
   display:flex;
   gap:10px;
   justify-content:center;
-  padding:12px;
+  padding:10px;
   background:var(--soft);
   flex-wrap:wrap;
 }
@@ -90,13 +92,13 @@ body{
   font-weight:600;
 }
 
-/* TABLE */
+/* ===== TABLE ===== */
 .table-wrap{
-  margin:20px;
+  margin:10px 16px 16px;
   border:1px solid #ccc;
   border-radius:12px;
-  overflow:auto;
-  max-height:70vh;
+  overflow:auto;                    /* scroll hanya di sini */
+  max-height:calc(100vh - 250px);   /* ❗ kunci bawah jadual */
 }
 
 table{
@@ -128,14 +130,14 @@ thead th{
   font-weight:700;
 }
 
-/* STATUS */
+/* STATUS WARNA */
 .status-red{background:var(--red); color:#fff;}
 .status-blue{background:var(--blue); color:#fff;}
 .status-green{background:var(--greenok); color:#fff;}
 .status-purple{background:var(--purple); color:#fff;}
 
 .cell{
-  min-height:50px;
+  min-height:48px;
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -147,7 +149,7 @@ thead th{
 .section.active{display:block;}
 
 @media(min-width:1024px){
-  .table-wrap{max-height:none;}
+  .table-wrap{max-height:none;} /* laptop nampak penuh */
   table{min-width:100%;}
 }
 </style>
@@ -157,13 +159,13 @@ thead th{
 <div class="container">
 
 <!-- MENU -->
-<div class="menu" id="menu">
-  <button class="active" onclick="showSection('utama')">UTAMA</button>
-  <button onclick="showSection('ppki')">PPKI</button>
-  <button onclick="showSection('carian')">CARIAN</button>
-  <button>JADUAL KELAS</button>
-  <button>JADUAL INDIVIDU</button>
-  <button>PENTADBIR & GURU</button>
+<div class="menu">
+  <button class="active" onclick="showSection('utama',this)">UTAMA</button>
+  <button onclick="showSection('ppki',this)">PPKI</button>
+  <button onclick="showSection('carian',this)">CARIAN</button>
+  <button disabled style="opacity:.4">JADUAL KELAS</button>
+  <button disabled style="opacity:.4">JADUAL INDIVIDU</button>
+  <button disabled style="opacity:.4">PENTADBIR & GURU</button>
 </div>
 
 <div class="header">
@@ -207,18 +209,24 @@ thead th{
           <td class="sticky">1 SLM</td>
           <td class="status-green">
             <div class="cell">
-              NURUL AIN BINTI BAHIR<br>
+              NURUL AIN BINTI BAHIR
               NORFAIZAH BINTI ISNIN
             </div>
           </td>
-          <td class="status-blue"><div class="cell">HJ. AMAD BAHRI BIN MARDI</div></td>
-          <td class="status-red"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+          <td class="status-blue">
+            <div class="cell">HJ. AMAD BAHRI BIN MARDI</div>
+          </td>
+          <td class="status-red"></td><td></td><td></td><td></td><td></td>
+          <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
         </tr>
 
         <tr>
           <td class="sticky">1 SAH</td>
-          <td class="status-purple"><div class="cell">ROSLI BIN ABU AMIN</div></td>
-          <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+          <td class="status-purple">
+            <div class="cell">ROSLI BIN ABU AMIN</div>
+          </td>
+          <td></td><td></td><td></td><td></td><td></td><td></td>
+          <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
         </tr>
       </tbody>
     </table>
@@ -264,12 +272,6 @@ thead th{
 <div class="section" id="carian">
   <div style="padding:20px">
     <h3>Carian Jadual Kelas</h3>
-    <select><option>Pilih Kelas</option></select>
-    <select><option>Pilih Waktu</option></select>
-    <select><option>Pilih Hari</option></select>
-    <br><br>
-    <button>CARI</button>
-    <button>SET SEMULA</button>
     <p><em>Tiada Dalam Jadual</em></p>
   </div>
 </div>
@@ -277,24 +279,16 @@ thead th{
 </div>
 
 <script>
-function showSection(id){
+function showSection(id, btn){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 
   document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
-}
-
-/* EMBED MODE */
-if(window.self !== window.top){
-  document.querySelectorAll('.menu button').forEach(btn=>{
-    if(btn.innerText!=="UTAMA" && btn.innerText!=="PPKI"){
-      btn.disabled=true;
-      btn.style.opacity=.4;
-    }
-  });
+  btn.classList.add('active');
 }
 </script>
 
 </body>
+
 </html>
+
