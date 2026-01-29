@@ -23,52 +23,62 @@ body{
   font-family:Segoe UI, Arial, sans-serif;
   background:var(--bg);
   min-height:100vh;
-  overflow:hidden; /* ❗ kunci scroll luar */
+  overflow:hidden;
 }
 
+/* ===== CONTAINER ===== */
 .container{
-  width:95%;
-  max-width:1500px;
-  margin:10px auto 0;
+  width:96%;
+  max-width:1600px;
+  margin:8px auto 0;
   background:#fff;
   border-radius:18px;
   box-shadow:0 12px 28px rgba(0,0,0,.15);
   overflow:hidden;
 }
 
-/* ===== MENU ===== */
+/* ===== MENU (PENUH & BESAR) ===== */
 .menu{
   display:flex;
-  gap:8px;
-  padding:12px;
+  width:100%;
   background:var(--green);
-  justify-content:center;
-  flex-wrap:wrap;
 }
+
 .menu button{
+  flex:1;
   background:none;
   border:none;
   color:#fff;
-  font-weight:600;
-  padding:8px 16px;
-  border-radius:20px;
+  font-weight:700;
+  font-size:1.05rem;
+  padding:16px 6px;
   cursor:pointer;
+  border-right:1px solid rgba(255,255,255,.25);
 }
+
+.menu button:last-child{
+  border-right:none;
+}
+
 .menu button.active{
   background:rgba(255,255,255,.25);
 }
 
 /* ===== HEADER ===== */
 .header{
-  padding:16px;
+  padding:16px 10px 10px;
   text-align:center;
 }
+
 .header h1{
   margin:0;
   color:var(--green);
+  font-size:2rem;
 }
+
 .header p{
   margin:6px 0 0;
+  font-size:.95rem;
 }
 
 /* ===== TARIKH ===== */
@@ -80,16 +90,20 @@ body{
   background:var(--soft);
   flex-wrap:wrap;
 }
-.date-box select, .date-box button{
-  padding:8px 12px;
+
+.date-box select, 
+.date-box button{
+  padding:8px 14px;
   border-radius:8px;
   border:1px solid #ccc;
+  font-size:.95rem;
 }
+
 .date-box button{
   background:var(--green);
   color:#fff;
   border:none;
-  font-weight:600;
+  font-weight:700;
 }
 
 /* ===== TABLE ===== */
@@ -97,8 +111,8 @@ body{
   margin:10px 16px 16px;
   border:1px solid #ccc;
   border-radius:12px;
-  overflow:auto;                    /* scroll hanya di sini */
-  max-height:calc(100vh - 250px);   /* ❗ kunci bawah jadual */
+  overflow:auto;
+  max-height:calc(100vh - 250px);
 }
 
 table{
@@ -130,7 +144,7 @@ thead th{
   font-weight:700;
 }
 
-/* STATUS WARNA */
+/* ===== STATUS WARNA ===== */
 .status-red{background:var(--red); color:#fff;}
 .status-blue{background:var(--blue); color:#fff;}
 .status-green{background:var(--greenok); color:#fff;}
@@ -144,12 +158,12 @@ thead th{
   gap:2px;
 }
 
-/* SECTION */
+/* ===== SECTION ===== */
 .section{display:none;}
 .section.active{display:block;}
 
 @media(min-width:1024px){
-  .table-wrap{max-height:none;} /* laptop nampak penuh */
+  .table-wrap{max-height:none;}
   table{min-width:100%;}
 }
 </style>
@@ -158,21 +172,23 @@ thead th{
 <body>
 <div class="container">
 
-<!-- MENU -->
+<!-- ===== MENU ===== -->
 <div class="menu">
   <button class="active" onclick="showSection('utama',this)">UTAMA</button>
   <button onclick="showSection('ppki',this)">PPKI</button>
   <button onclick="showSection('carian',this)">CARIAN</button>
-  <button disabled style="opacity:.4">JADUAL KELAS</button>
-  <button disabled style="opacity:.4">JADUAL INDIVIDU</button>
-  <button disabled style="opacity:.4">PENTADBIR & GURU</button>
+  <button disabled>JADUAL KELAS</button>
+  <button disabled>JADUAL INDIVIDU</button>
+  <button disabled>PENTADBIR & GURU</button>
 </div>
 
+<!-- ===== HEADER ===== -->
 <div class="header">
   <h1>e-PDP SMK Semenchu</h1>
   <p>Sistem Rekod Pengajaran & Pembelajaran Digital</p>
 </div>
 
+<!-- ===== TARIKH ===== -->
 <div class="date-box">
   <select><option>2025</option></select>
   <select><option>Mei</option></select>
@@ -291,4 +307,5 @@ function showSection(id, btn){
 </body>
 
 </html>
+
 
