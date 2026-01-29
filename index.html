@@ -1,258 +1,300 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-  <meta charset="UTF-8">
-  <title>e-PDP SMK Semenchu</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#d9f4e0">
+<meta charset="UTF-8">
+<title>e-PDP SMK Semenchu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    :root{
-      --green:#145a32;
-      --bg:#d9f4e0;
-      --soft:#f4fbf6;
-      --line:#dcdcdc;
-    }
+<style>
+:root{
+  --green:#145a32;
+  --bg:#d9f4e0;
+  --soft:#f4fbf6;
+  --red:#e74c3c;
+  --blue:#3498db;
+  --greenok:#2ecc71;
+  --purple:#9b59b6;
+}
 
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: "Segoe UI", Arial, sans-serif;
-      background:var(--bg);
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-    }
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Segoe UI, Arial, sans-serif;
+  background:var(--bg);
+}
 
-    .container{
-      background:#fff;
-      width:95%;
-      max-width:1400px;
-      border-radius:18px;
-      box-shadow:0 12px 28px rgba(0,0,0,.15);
-      overflow:hidden;
-    }
+.container{
+  width:95%;
+  max-width:1500px;
+  margin:20px auto;
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 12px 28px rgba(0,0,0,.15);
+  overflow:hidden;
+}
 
-    /* MENU */
-    .menu-bar{
-      display:flex;
-      gap:10px;
-      justify-content:center;
-      align-items:center;
-      background:var(--green);
-      padding:12px;
-      flex-wrap:wrap;
-    }
-    .menu-bar a{
-      color:#fff;
-      text-decoration:none;
-      font-weight:600;
-      padding:8px 14px;
-      border-radius:20px;
-      font-size:.95rem;
-    }
-    .menu-bar a.active,
-    .menu-bar a:hover{
-      background:rgba(255,255,255,.2);
-    }
+/* MENU */
+.menu{
+  display:flex;
+  gap:8px;
+  padding:12px;
+  background:var(--green);
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.menu button{
+  background:none;
+  border:none;
+  color:#fff;
+  font-weight:600;
+  padding:8px 16px;
+  border-radius:20px;
+  cursor:pointer;
+}
+.menu button.active,
+.menu button:hover{
+  background:rgba(255,255,255,.2);
+}
 
-    .content{
-      padding:28px 24px 30px;
-    }
+/* HEADER */
+.header{
+  padding:20px;
+  text-align:center;
+}
+.header h1{
+  margin:0;
+  color:var(--green);
+}
+.header p{
+  margin:6px 0 0;
+}
 
-    h1{
-      margin:0;
-      color:var(--green);
-      font-size:2rem;
-      text-align:center;
-    }
-    .subtitle{
-      text-align:center;
-      margin-top:6px;
-      color:#333;
-    }
+/* TARIKH */
+.date-box{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  padding:12px;
+  background:var(--soft);
+  flex-wrap:wrap;
+}
+.date-box select, .date-box button{
+  padding:8px 12px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+.date-box button{
+  background:var(--green);
+  color:#fff;
+  border:none;
+  font-weight:600;
+}
 
-    /* TARIKH */
-    .date-box{
-      margin:22px auto 18px;
-      display:flex;
-      gap:10px;
-      justify-content:center;
-      flex-wrap:wrap;
-      background:var(--soft);
-      padding:14px;
-      border-radius:14px;
-      max-width:900px;
-    }
-    .date-box select,
-    .date-box button{
-      padding:8px 12px;
-      border-radius:8px;
-      border:1px solid #ccc;
-      font-size:.95rem;
-    }
-    .date-box button{
-      background:var(--green);
-      color:#fff;
-      border:none;
-      font-weight:600;
-      cursor:pointer;
-    }
+/* TABLE */
+.table-wrap{
+  margin:20px;
+  border:1px solid #ccc;
+  border-radius:12px;
+  overflow:auto;
+  max-height:70vh;
+}
 
-    /* ====== JADUAL ====== */
-    .table-wrap{
-      margin-top:16px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      overflow:auto;               /* HP boleh scroll */
-      max-height:70vh;              /* kekal kemas */
-      background:#fff;
-    }
+table{
+  border-collapse:separate;
+  border-spacing:0;
+  width:100%;
+  min-width:1200px;
+}
 
-    table{
-      border-collapse:separate;
-      border-spacing:0;
-      min-width:1100px;             /* benarkan mendatar di HP */
-      width:100%;
-    }
+th, td{
+  border:1px solid #ddd;
+  padding:6px;
+  text-align:center;
+  font-size:.85rem;
+}
 
-    th, td{
-      border-right:1px solid var(--line);
-      border-bottom:1px solid var(--line);
-      padding:8px 10px;
-      font-size:.9rem;
-      text-align:center;
-      background:#fff;
-      white-space:nowrap;
-    }
+thead th{
+  position:sticky;
+  top:0;
+  background:#eef7f1;
+  z-index:3;
+}
 
-    thead th{
-      position:sticky;              /* freeze masa */
-      top:0;
-      z-index:3;
-      background:#eef7f1;
-      font-weight:700;
-    }
+.sticky{
+  position:sticky;
+  left:0;
+  background:#f7fbf9;
+  z-index:4;
+  font-weight:700;
+}
 
-    .sticky-col{
-      position:sticky;              /* freeze kelas */
-      left:0;
-      z-index:4;
-      background:#f7fbf9;
-      font-weight:700;
-      text-align:left;
-      min-width:120px;
-    }
+/* STATUS */
+.status-red{background:var(--red); color:#fff;}
+.status-blue{background:var(--blue); color:#fff;}
+.status-green{background:var(--greenok); color:#fff;}
+.status-purple{background:var(--purple); color:#fff;}
 
-    /* sudut kiri atas */
-    .corner{
-      z-index:5;
-      background:#e6f2ea;
-    }
+.cell{
+  min-height:50px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:2px;
+}
 
-    /* desktop rasa penuh */
-    @media (min-width:1024px){
-      .table-wrap{
-        max-height:none;            /* desktop nampak penuh */
-      }
-      table{
-        min-width:100%;
-      }
-    }
-  </style>
+/* SECTION */
+.section{display:none;}
+.section.active{display:block;}
+
+@media(min-width:1024px){
+  .table-wrap{max-height:none;}
+  table{min-width:100%;}
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
+<div class="container">
 
-    <!-- MENU -->
-    <div class="menu-bar">
-      <a class="active" href="#">UTAMA</a>
-      <a href="#">PPKI</a>
-      <a href="carian.html">CARIAN</a>
-      <a href="#">JADUAL KELAS</a>
-      <a href="#">JADUAL INDIVIDU</a>
-      <a href="#">PENTADBIR & GURU</a>
-    </div>
+<!-- MENU -->
+<div class="menu" id="menu">
+  <button class="active" onclick="showSection('utama')">UTAMA</button>
+  <button onclick="showSection('ppki')">PPKI</button>
+  <button onclick="showSection('carian')">CARIAN</button>
+  <button>JADUAL KELAS</button>
+  <button>JADUAL INDIVIDU</button>
+  <button>PENTADBIR & GURU</button>
+</div>
 
-    <div class="content">
-      <h1>e-PDP SMK Semenchu</h1>
-      <div class="subtitle">Sistem Rekod Pengajaran & Pembelajaran Digital</div>
+<div class="header">
+  <h1>e-PDP SMK Semenchu</h1>
+  <p>Sistem Rekod Pengajaran & Pembelajaran Digital</p>
+</div>
 
-      <!-- TARIKH -->
-      <div class="date-box">
-        <select>
-          <option>2025</option>
-        </select>
-        <select>
-          <option>Mei</option>
-        </select>
-        <select>
-          <option>15</option>
-        </select>
-        <button>Cari</button>
-      </div>
+<div class="date-box">
+  <select><option>2025</option></select>
+  <select><option>Mei</option></select>
+  <select><option>15</option></select>
+  <button>Cari</button>
+</div>
 
-      <!-- JADUAL UTAMA -->
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th class="corner sticky-col">KELAS</th>
-              <th>1<br>7.30–8.00</th>
-              <th>2<br>8.00–8.30</th>
-              <th>3<br>8.30–9.00</th>
-              <th>4<br>9.00–9.30</th>
-              <th>5<br>9.30–10.00</th>
-              <th>6<br>10.00–10.30</th>
-              <th>7<br>10.30–11.00</th>
-              <th>8<br>11.00–11.30</th>
-              <th>9<br>11.30–12.00</th>
-              <th>10<br>12.00–12.30</th>
-              <th>11<br>12.30–1.00</th>
-              <th>12<br>1.00–1.30</th>
-              <th>13<br>1.30–2.00</th>
-              <th>14<br>2.00–2.30</th>
-              <th>15<br>2.30–3.00</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- 25 kelas (contoh ringkas, rangka kosong) -->
-            <tr><td class="sticky-col">1 SLM</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">1 SAH</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">1 SAR</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">1 SHS</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">1 SAI</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<!-- ===== UTAMA ===== -->
+<div class="section active" id="utama">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="sticky">KELAS</th>
+          <th>1<br>7.30-8.00</th>
+          <th>2<br>8.00-8.30</th>
+          <th>3<br>8.30-9.00</th>
+          <th>4<br>9.00-9.30</th>
+          <th>5<br>9.30-10.00</th>
+          <th>6<br>10.00-10.30</th>
+          <th>7<br>10.30-11.00</th>
+          <th>8<br>11.00-11.30</th>
+          <th>9<br>11.30-12.00</th>
+          <th>10<br>12.00-12.30</th>
+          <th>11<br>12.30-1.00</th>
+          <th>12<br>1.00-1.30</th>
+          <th>13<br>1.30-2.00</th>
+          <th>14<br>2.00-2.30</th>
+          <th>15<br>2.30-3.00</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sticky">1 SLM</td>
+          <td class="status-green">
+            <div class="cell">
+              NURUL AIN BINTI BAHIR<br>
+              NORFAIZAH BINTI ISNIN
+            </div>
+          </td>
+          <td class="status-blue"><div class="cell">HJ. AMAD BAHRI BIN MARDI</div></td>
+          <td class="status-red"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+        </tr>
 
-            <tr><td class="sticky-col">2 SLM</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">2 SAH</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">2 SAR</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">2 SHS</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">2 SAI</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-
-            <tr><td class="sticky-col">3 SLM</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">3 SAH</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">3 SAR</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">3 SHS</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">3 SAI</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-
-            <tr><td class="sticky-col">4 SAD</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">4 SMF</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">4 SAJ</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">4 SAB</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">4 SMD</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-
-            <tr><td class="sticky-col">5 SAD</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">5 SMF</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">5 SAJ</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">5 SAB</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="sticky-col">5 SMD</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-          </tbody>
-        </table>
-      </div>
-
-    </div>
+        <tr>
+          <td class="sticky">1 SAH</td>
+          <td class="status-purple"><div class="cell">ROSLI BIN ABU AMIN</div></td>
+          <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
+</div>
+
+<!-- ===== PPKI ===== -->
+<div class="section" id="ppki">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="sticky">KELAS PPKI</th>
+          <th>7.30-8.30</th>
+          <th>8.30-9.30</th>
+          <th>9.30-10.30</th>
+          <th>10.30-11.30</th>
+          <th>11.30-12.00</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sticky">1 SAD</td>
+          <td class="status-green"><div class="cell">MOHD HAZROY BIN SAF PERI</div></td>
+          <td></td><td></td><td></td><td></td>
+        </tr>
+        <tr>
+          <td class="sticky">2 SMF</td>
+          <td class="status-blue"><div class="cell">NORLIDA BINTI HASHIM</div></td>
+          <td></td><td></td><td></td><td></td>
+        </tr>
+        <tr>
+          <td class="sticky">3 SAJ</td>
+          <td class="status-green"><div class="cell">RUHAIDAH BINTI ABD RAOB</div></td>
+          <td></td><td></td><td></td><td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== CARIAN ===== -->
+<div class="section" id="carian">
+  <div style="padding:20px">
+    <h3>Carian Jadual Kelas</h3>
+    <select><option>Pilih Kelas</option></select>
+    <select><option>Pilih Waktu</option></select>
+    <select><option>Pilih Hari</option></select>
+    <br><br>
+    <button>CARI</button>
+    <button>SET SEMULA</button>
+    <p><em>Tiada Dalam Jadual</em></p>
+  </div>
+</div>
+
+</div>
+
+<script>
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+/* EMBED MODE */
+if(window.self !== window.top){
+  document.querySelectorAll('.menu button').forEach(btn=>{
+    if(btn.innerText!=="UTAMA" && btn.innerText!=="PPKI"){
+      btn.disabled=true;
+      btn.style.opacity=.4;
+    }
+  });
+}
+</script>
+
 </body>
 </html>
