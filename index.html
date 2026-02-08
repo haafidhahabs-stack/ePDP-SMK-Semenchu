@@ -37,7 +37,7 @@ body{
   overflow:hidden;
 }
 
-/* ===== MENU (PENUH & BESAR) ===== */
+/* ===== MENU ===== */
 .menu{
   display:flex;
   width:100%;
@@ -55,27 +55,20 @@ body{
   cursor:pointer;
   border-right:1px solid rgba(255,255,255,.25);
 }
-
-.menu button:last-child{
-  border-right:none;
-}
-
-.menu button.active{
-  background:rgba(255,255,255,.25);
-}
+.menu button:last-child{border-right:none;}
+.menu button.active{background:rgba(255,255,255,.25);}
+.menu button:disabled{opacity:.4}
 
 /* ===== HEADER ===== */
 .header{
   padding:16px 10px 10px;
   text-align:center;
 }
-
 .header h1{
   margin:0;
   color:var(--green);
   font-size:2rem;
 }
-
 .header p{
   margin:6px 0 0;
   font-size:.95rem;
@@ -90,7 +83,6 @@ body{
   background:var(--soft);
   flex-wrap:wrap;
 }
-
 .date-box select, 
 .date-box button{
   padding:8px 14px;
@@ -98,7 +90,6 @@ body{
   border:1px solid #ccc;
   font-size:.95rem;
 }
-
 .date-box button{
   background:var(--green);
   color:#fff;
@@ -127,6 +118,7 @@ th, td{
   padding:6px;
   text-align:center;
   font-size:.85rem;
+  height:44px;              /* ⬅️ tinggi SEL DIKUNCI */
 }
 
 thead th{
@@ -145,18 +137,10 @@ thead th{
 }
 
 /* ===== STATUS WARNA ===== */
-.status-red{background:var(--red); color:#fff;}
-.status-blue{background:var(--blue); color:#fff;}
-.status-green{background:var(--greenok); color:#fff;}
-.status-purple{background:var(--purple); color:#fff;}
-
-.cell{
-  min-height:48px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  gap:2px;
-}
+.status-red{background:var(--red);}
+.status-blue{background:var(--blue);}
+.status-green{background:var(--greenok);}
+.status-purple{background:var(--purple);}
 
 /* ===== SECTION ===== */
 .section{display:none;}
@@ -223,26 +207,19 @@ thead th{
       <tbody>
         <tr>
           <td class="sticky">1 SLM</td>
-          <td class="status-green">
-            <div class="cell">
-              NURUL AIN BINTI BAHIR
-              NORFAIZAH BINTI ISNIN
-            </div>
-          </td>
-          <td class="status-blue">
-            <div class="cell">HJ. AMAD BAHRI BIN MARDI</div>
-          </td>
-          <td class="status-red"></td><td></td><td></td><td></td><td></td>
-          <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+          <td class="status-green"></td>
+          <td class="status-blue"></td>
+          <td class="status-red"></td>
+          <td></td><td></td><td></td><td></td>
+          <td></td><td></td><td></td><td></td>
+          <td></td><td></td><td></td><td></td>
         </tr>
-
         <tr>
           <td class="sticky">1 SAH</td>
-          <td class="status-purple">
-            <div class="cell">ROSLI BIN ABU AMIN</div>
-          </td>
-          <td></td><td></td><td></td><td></td><td></td><td></td>
-          <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+          <td class="status-purple"></td>
+          <td></td><td></td><td></td><td></td><td></td>
+          <td></td><td></td><td></td><td></td>
+          <td></td><td></td><td></td><td></td>
         </tr>
       </tbody>
     </table>
@@ -266,17 +243,17 @@ thead th{
       <tbody>
         <tr>
           <td class="sticky">1 SAD</td>
-          <td class="status-green"><div class="cell">MOHD HAZROY BIN SAF PERI</div></td>
+          <td class="status-green"></td>
           <td></td><td></td><td></td><td></td>
         </tr>
         <tr>
           <td class="sticky">2 SMF</td>
-          <td class="status-blue"><div class="cell">NORLIDA BINTI HASHIM</div></td>
+          <td class="status-blue"></td>
           <td></td><td></td><td></td><td></td>
         </tr>
         <tr>
           <td class="sticky">3 SAJ</td>
-          <td class="status-green"><div class="cell">RUHAIDAH BINTI ABD RAOB</div></td>
+          <td class="status-green"></td>
           <td></td><td></td><td></td><td></td>
         </tr>
       </tbody>
@@ -284,10 +261,10 @@ thead th{
   </div>
 </div>
 
-<!-- ===== CARIAN ===== -->
+<!-- ===== CARIAN (kosong dulu) ===== -->
 <div class="section" id="carian">
   <div style="padding:20px">
-    <h3>Carian Jadual Kelas</h3>
+    <h3>Carian (Nama Guru Akan Dipaparkan Di Sini)</h3>
     <p><em>Tiada Dalam Jadual</em></p>
   </div>
 </div>
@@ -305,7 +282,4 @@ function showSection(id, btn){
 </script>
 
 </body>
-
 </html>
-
-
