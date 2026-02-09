@@ -31,7 +31,6 @@ header{
 /* ===== MENU ===== */
 nav{
   display:flex;
-  justify-content:space-between;
   background:var(--green);
   overflow-x:auto;
 }
@@ -42,25 +41,20 @@ nav button{
   color:#fff;
   font-size:15px;
   font-weight:bold;
-  padding:12px 8px;
+  padding:12px 6px;
   cursor:pointer;
   white-space:nowrap;
 }
-nav button.active{
-  background:#1b5e20;
-}
+nav button.active{ background:#1b5e20; }
 nav button.locked{
   background:var(--disabled);
   cursor:not-allowed;
 }
 
 /* ===== CONTENT ===== */
-.section{
-  display:none;
-}
-.section.active{
-  display:block;
-}
+.section{ display:none; }
+.section.active{ display:block; }
+
 .table-container{
   height:calc(100vh - 120px);
   overflow:hidden;
@@ -82,6 +76,7 @@ th{
   background:#a5d6a7;
   position:sticky;
   top:0;
+  z-index:3;
 }
 .kelas{
   position:sticky;
@@ -89,13 +84,14 @@ th{
   background:#e8f5e9;
   font-weight:bold;
   width:90px;
+  z-index:2;
 }
-.slot{background:var(--red); height:28px;}
-.off{background:var(--grey);}
+.slot{ background:var(--red); height:28px; }
+.off{ background:var(--grey); }
 
 @media(max-width:768px){
-  .table-container{overflow:auto;}
-  table{width:1200px;}
+  .table-container{ overflow:auto; }
+  table{ width:1200px; }
 }
 </style>
 </head>
@@ -104,7 +100,6 @@ th{
 
 <header>e-PDP SMK Semenchu</header>
 
-<!-- ===== MENU ===== -->
 <nav>
   <button class="active" onclick="show('utama')">UTAMA</button>
   <button onclick="show('ppki')">PPKI</button>
@@ -115,7 +110,7 @@ th{
   <button class="locked">PENTADBIR</button>
 </nav>
 
-<!-- ===== UTAMA ===== -->
+<!-- ================= UTAMA ================= -->
 <div id="utama" class="section active">
 <div class="table-container">
 <table>
@@ -128,19 +123,46 @@ th{
 <th>1.30–2.00</th><th>2.00–2.30</th><th>2.30–3.00</th>
 </tr>
 
+<!-- Tingkatan 1 -->
 <tr><td class="kelas">1 SLM</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
 <tr><td class="kelas">1 SAH</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
 <tr><td class="kelas">1 SAR</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
 <tr><td class="kelas">1 SHS</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
 <tr><td class="kelas">1 SAI</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
 
-<!-- (kelas lain ikut struktur sama – tiada perubahan konsep) -->
+<!-- Tingkatan 2 -->
+<tr><td class="kelas">2 SLM</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+<tr><td class="kelas">2 SAH</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+<tr><td class="kelas">2 SAR</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+<tr><td class="kelas">2 SHS</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+<tr><td class="kelas">2 SAI</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+
+<!-- Tingkatan 3 -->
+<tr><td class="kelas">3 SLM</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+<tr><td class="kelas">3 SAH</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+<tr><td class="kelas">3 SAR</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+<tr><td class="kelas">3 SHS</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+<tr><td class="kelas">3 SAI</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+
+<!-- Tingkatan 4 -->
+<tr><td class="kelas">4 SAD</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td></tr>
+<tr><td class="kelas">4 SMF</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+<tr><td class="kelas">4 SAJ</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+<tr><td class="kelas">4 SAB</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+<tr><td class="kelas">4 SMD</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+
+<!-- Tingkatan 5 -->
+<tr><td class="kelas">5 SAD</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td></tr>
+<tr><td class="kelas">5 SMF</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+<tr><td class="kelas">5 SAJ</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+<tr><td class="kelas">5 SAB</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
+<tr><td class="kelas">5 SMD</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
 
 </table>
 </div>
 </div>
 
-<!-- ===== PPKI ===== -->
+<!-- ================= PPKI ================= -->
 <div id="ppki" class="section">
 <div class="table-container">
 <table>
