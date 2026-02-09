@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ms">
 <head>
@@ -13,6 +12,7 @@
   --green:#2e7d32;
   --red:#e53935;
   --grey:#cfd8dc;
+  --disabled:#9e9e9e;
 }
 body{
   margin:0;
@@ -27,23 +27,34 @@ header{
   font-size:22px;
   font-weight:bold;
 }
+
+/* ===== MENU ===== */
 nav{
   display:flex;
-  justify-content:center;
+  justify-content:space-between;
   background:var(--green);
+  overflow-x:auto;
 }
 nav button{
+  flex:1;
   border:none;
   background:none;
   color:#fff;
-  font-size:16px;
+  font-size:15px;
   font-weight:bold;
-  padding:12px 30px;
+  padding:12px 8px;
   cursor:pointer;
+  white-space:nowrap;
 }
 nav button.active{
   background:#1b5e20;
 }
+nav button.locked{
+  background:var(--disabled);
+  cursor:not-allowed;
+}
+
+/* ===== CONTENT ===== */
 .section{
   display:none;
 }
@@ -51,7 +62,7 @@ nav button.active{
   display:block;
 }
 .table-container{
-  height:calc(100vh - 110px);
+  height:calc(100vh - 120px);
   overflow:hidden;
   padding:10px;
 }
@@ -93,12 +104,18 @@ th{
 
 <header>e-PDP SMK Semenchu</header>
 
+<!-- ===== MENU ===== -->
 <nav>
   <button class="active" onclick="show('utama')">UTAMA</button>
   <button onclick="show('ppki')">PPKI</button>
+  <button class="locked">CARIAN</button>
+  <button class="locked">JADUAL KELAS</button>
+  <button class="locked">JADUAL GURU</button>
+  <button class="locked">JADUAL INDIVIDU</button>
+  <button class="locked">PENTADBIR</button>
 </nav>
 
-<!-- ================= UTAMA ================= -->
+<!-- ===== UTAMA ===== -->
 <div id="utama" class="section active">
 <div class="table-container">
 <table>
@@ -117,13 +134,13 @@ th{
 <tr><td class="kelas">1 SHS</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
 <tr><td class="kelas">1 SAI</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
 
-<!-- (kelas lain sama seperti sebelum ini – tiada perubahan struktur) -->
+<!-- (kelas lain ikut struktur sama – tiada perubahan konsep) -->
 
 </table>
 </div>
 </div>
 
-<!-- ================= PPKI ================= -->
+<!-- ===== PPKI ===== -->
 <div id="ppki" class="section">
 <div class="table-container">
 <table>
@@ -133,11 +150,9 @@ th{
 <th>9.00–9.30</th><th>9.30–10.00</th><th>10.00–10.30</th>
 <th>10.30–11.00</th><th>11.00–11.30</th><th>11.30–12.00</th>
 </tr>
-
 <tr><td class="kelas">PPKI 1</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td></tr>
 <tr><td class="kelas">PPKI 2</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td></tr>
 <tr><td class="kelas">PPKI 3</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td></tr>
-
 </table>
 </div>
 </div>
@@ -153,4 +168,3 @@ function show(id){
 
 </body>
 </html>
-
