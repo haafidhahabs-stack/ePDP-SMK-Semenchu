@@ -225,5 +225,66 @@ function show(id){
 }
 </script>
 
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbwTVCk8rbcz34fCu3i_gTfYaITYV9ObsQteVS-1sgD3zmSVX9xwZcgfZriBEn3F-r1R/exec";
+
+/* ===== util masa ===== */
+function slotTime(slot){
+  const times = [
+    [7,30],[8,0],[8,30],[9,0],[9,30],[10,0],[10,30],[11,0],
+    [11,30],[12,0],[12,30],[13,0],[13,30],[14,0],[14,30]
+  ];
+  return times[slot-1];
+}
+function toMin(h,m){ return h*60+m; }
+
+/* ===== baca & warnakan jadual ===== */
+async function loadRekod(){
+  try{
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    if(!data.ok) return;
+
+    const rows = data.rows;
+
+    rows.forEach(r=>{
+      const kelas = r.kelas;
+      const slotMula = r.slot;
+      const bil = r.bil;
+      const jenis = r.jenis;
+
+      const row = [...document.querySelectorAll("td.kelas")]
+        .find(td => td.textContent.trim() === kelas)
+        ?.parentElement;
+
+      if(!row) return;
+
+      for(let i=0;i<bil;i++){
+        const slotNo = slotMula + i;
+        const cell = row.children[slotNo];
+        if(!cell || cell.classList.contains("off")) continue;
+
+        if(jenis === "RELIF"){
+          cell.style.background = "#9c27b0"; // ungu
+        }else if(bil >= 2){
+          cell.style.background = "#2e7d32"; // hijau
+        }else{
+          cell.style.background = "#1e88e5"; // biru
+        }
+      }
+    });
+  }catch(e){
+    console.error("Gagal baca rekod", e);
+  }
+}
+
+/* ===== auto load ===== */
+document.addEventListener("DOMContentLoaded", loadRekod);
+</script>
+
+
+  
 </body>
 </html>
+
