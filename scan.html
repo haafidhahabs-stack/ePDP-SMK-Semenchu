@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Aplikasi e-PDP SMK Semenchu</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#0f2e1d;
+  color:white;
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  overflow:hidden;
+}
+
+header{
+  padding:8px;
+  background:#163d27;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  z-index:2;
+}
+
+select{
+  padding:6px;
+  font-size:14px;
+  border-radius:6px;
+  border:none;
+}
+
+.radio-group{
+  display:flex;
+  gap:15px;
+  font-size:14px;
+}
+
+#reader{
+  flex:1;
+  width:100%;
+  position:relative;
+}
+
+#toast{
+  position:absolute;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#2e7d32;
+  padding:10px 20px;
+  border-radius:20px;
+  display:none;
+  font-size:14px;
+}
+
+#cameraToggle{
+  position:absolute;
+  top:10px;
+  right:10px;
+  background:rgba(0,0,0,0.6);
+  border:none;
+  color:white;
+  font-size:18px;
+  padding:8px;
+  border-radius:50%;
+  z-index:3;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<select id="guru">
+<option value="">-- Pilih Nama Guru --</option>
+<option>HJ. AMAD BAHRI BIN MARDI</option>
+<option>SITI SANISAH BINTI SAMIAN</option>
+<option>MOHD JAMIL BIN SALEH @ JAPRI</option>
+<option>HUZANA BINTI SARIJO</option>
+<option>FATIMAH ZOHORA BINTI NOH</option>
+<option>ZURAINI BINTI AHMAD</option>
+<option>ANIZA BINTI AHMAD</option>
+<option>JOHARI BIN JAMAT</option>
+<option>ALINA BINTI RAHMAN</option>
+<option>AHMAD FAHIM NAQIUDDIN BIN IBRAHIM</option>
+<option>HAAFIDHAH BINTI ABU BAKAR SIDEK</option>
+<option>ROSLI BIN ABU AMIN</option>
+<option>NORLIDA BINTI HASHIM</option>
+<option>MOHD HAZROY BIN SAF PERI</option>
+<option>RUHAIDAH BINTI ABD RAOB</option>
+</select>
+
+<div class="radio-group">
+<label><input type="radio" name="durasi" value="1" checked>30m</label>
+<label><input type="radio" name="durasi" value="2">60m</label>
+<label><input type="radio" name="durasi" value="3">90m</label>
+</div>
+</header>
+
+<div id="reader"></div>
+<button id="cameraToggle">🔄</button>
+<div id="toast">Rekod berjaya dihantar</div>
+
+<script src="html5-qrcode.min.js"></script>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbwBDsXaUXgFMTFegyB_07CVrRxq02BB8R4_S8rolEYDkNSHiYvvHmUoywgZ0twnpzVzCw/exec";
+
+let currentCamera = "environment";
+let html5QrCode;
+
+function getSlotNow(){
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMinutes();
+  const total = h*60 + m;
+
+  const start = 7*60+30; // 7:30
+  const diff = total - start;
+
+  if(diff < 0) return null;
+
+  const slot = Math.floor(diff/30)+1;
+  return slot;
+}
+
+function vibrate(){
+  if(navigator.vibrate){
+    navigator.vibrate(200);
+  }
+}
+
+function showToast(){
+  const t = document.getElementById("toast");
+  t.style.display="block";
+  setTimeout(()=>t.style.display="none",2000);
+}
+
+async function startScanner(){
+  html5QrCode = new Html5Qrcode("reader");
+  await html5QrCode.start(
+    { facingMode: currentCamera },
+    { fps:10, qrbox:{width:250,height:250} },
+    onScanSuccess
+  );
+}
+
+async function onScanSuccess(decodedText){
+  const guru = document.getElementById("guru").value;
+  if(!guru){
+    alert("Sila pilih nama guru dahulu");
+    return;
+  }
+
+  const slot = getSlotNow();
+  if(!slot){
+    alert("Di luar waktu persekolahan");
+    return;
+  }
+
+  const bil = document.querySelector('input[name="durasi"]:checked').value;
+
+  const jenis = decodedText.includes("RELIF") ? "RELIF" : "BIASA";
+
+  const data = {
+    Tarikh: new Date().toISOString().split("T")[0],
+    MasaScan: new Date().toLocaleTimeString(),
+    NamaGuru: guru,
+    Kelas: decodedText.trim(),
+    SlotMula: slot,
+    BilSlot: bil,
+    Jenis: jenis
+  };
+
+  await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify(data),
+    headers:{ "Content-Type":"application/json" }
+  });
+
+  vibrate();
+  showToast();
+}
+
+document.getElementById("guru").addEventListener("change",()=>{
+  if(document.getElementById("guru").value){
+    startScanner();
+  }
+});
+
+document.getElementById("cameraToggle").addEventListener("click",async ()=>{
+  await html5QrCode.stop();
+  currentCamera = currentCamera === "environment" ? "user" : "environment";
+  startScanner();
+});
+</script>
+
+</body>
+</html>
