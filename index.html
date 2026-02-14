@@ -244,7 +244,8 @@ async function loadRekod(){
   try{
     const res = await fetch(API_URL);
     const data = await res.json();
-    if(!data.ok) return;
+
+    if(!data.rows) return;
 
     const rows = data.rows;
 
@@ -266,27 +267,29 @@ async function loadRekod(){
         if(!cell || cell.classList.contains("off")) continue;
 
         if(jenis === "RELIF"){
-          cell.style.background = "#9c27b0"; // ungu
+          cell.style.background = "#9c27b0";
         }else if(bil >= 2){
-          cell.style.background = "#2e7d32"; // hijau
+          cell.style.background = "#2e7d32";
         }else{
-          cell.style.background = "#1e88e5"; // biru
+          cell.style.background = "#1e88e5";
         }
       }
     });
+
   }catch(e){
     console.error("Gagal baca rekod", e);
   }
 }
 
-/* ===== auto load ===== */
 document.addEventListener("DOMContentLoaded", loadRekod);
+
 </script>
 
 
   
 </body>
 </html>
+
 
 
 
