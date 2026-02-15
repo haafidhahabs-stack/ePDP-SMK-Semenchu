@@ -208,28 +208,43 @@ onScanError
 }
 
 /* SWITCH CAMERA STABIL */
+
+/* SWITCH CAMERA STABIL V2 */
 document.getElementById("switchCam").addEventListener("click", async () => {
 
 if(!cameras.length) return;
 
-currentCameraIndex = (currentCameraIndex + 1) % cameras.length;
+try {
 
-await html5QrCode.stop();
+    currentCameraIndex = (currentCameraIndex + 1) % cameras.length;
 
-await html5QrCode.start(
-cameras[currentCameraIndex].id,
-{
-fps:10,
-qrbox: function(viewfinderWidth, viewfinderHeight) {
-let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-return Math.floor(minEdge * 0.75);
+    if(html5QrCode){
+        await html5QrCode.stop();
+        await html5QrCode.clear();
+    }
+
+    html5QrCode = new Html5Qrcode("reader");
+
+    await html5QrCode.start(
+        cameras[currentCameraIndex].id,
+        {
+            fps:10,
+            qrbox: function(viewfinderWidth, viewfinderHeight) {
+                let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+                return Math.floor(minEdge * 0.75);
+            }
+        },
+        onScanSuccess,
+        onScanError
+    );
+
+} catch(err){
+    console.error("Switch camera error:", err);
 }
-},
-onScanSuccess,
-onScanError
-);
 
 });
+
+  
 
 document.addEventListener("DOMContentLoaded", function(){
 startScanner();
