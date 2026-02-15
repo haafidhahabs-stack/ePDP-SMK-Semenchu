@@ -135,29 +135,7 @@ if(slot > 15) slot = 15;
 return slot;
 }
 
-function startScanner(){
-
-Html5Qrcode.getCameras().then(devices => {
-
-cameras = devices;
-
-if(cameras.length === 0){
-alert("Tiada kamera dijumpai");
-return;
-}
-
-html5QrCode = new Html5Qrcode("reader");
-
-html5QrCode.start(
-cameras[currentCameraIndex].id,
-{
-fps:10,
-qrbox: function(viewfinderWidth, viewfinderHeight) {
-let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-return Math.floor(minEdge * 0.75);
-}
-},
-qrMessage => {
+function onScanSuccess(qrMessage){
 
 const guru = document.getElementById("guru").value;
 if(!guru){
@@ -187,21 +165,70 @@ setTimeout(()=>document.body.classList.remove("success"),500);
 }
 });
 
-},
-error => {}
+}
 
+function onScanError(error){}
+
+function startScanner(){
+
+Html5Qrcode.getCameras().then(devices => {
+
+cameras = devices;
+
+if(cameras.length === 0){
+alert("Tiada kamera dijumpai");
+return;
+}
+
+/* default pilih kamera belakang jika ada */
+let backCam = cameras.findIndex(cam =>
+cam.label.toLowerCase().includes("back") ||
+cam.label.toLowerCase().includes("rear")
+);
+
+currentCameraIndex = backCam !== -1 ? backCam : 0;
+
+html5QrCode = new Html5Qrcode("reader");
+
+html5QrCode.start(
+cameras[currentCameraIndex].id,
+{
+fps:10,
+qrbox: function(viewfinderWidth, viewfinderHeight) {
+let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+return Math.floor(minEdge * 0.75);
+}
+},
+onScanSuccess,
+onScanError
 );
 
 });
 
 }
 
-document.getElementById("switchCam").addEventListener("click",()=>{
+/* SWITCH CAMERA STABIL */
+document.getElementById("switchCam").addEventListener("click", async () => {
+
 if(!cameras.length) return;
-currentCameraIndex = (currentCameraIndex+1)%cameras.length;
-html5QrCode.stop().then(()=>{
-startScanner();
-});
+
+currentCameraIndex = (currentCameraIndex + 1) % cameras.length;
+
+await html5QrCode.stop();
+
+await html5QrCode.start(
+cameras[currentCameraIndex].id,
+{
+fps:10,
+qrbox: function(viewfinderWidth, viewfinderHeight) {
+let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+return Math.floor(minEdge * 0.75);
+}
+},
+onScanSuccess,
+onScanError
+);
+
 });
 
 document.addEventListener("DOMContentLoaded", function(){
