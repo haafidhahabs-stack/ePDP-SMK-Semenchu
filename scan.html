@@ -2,13 +2,14 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Aplikasi e-PDP SMK Semenchu</title>
 
 <script src="html5-qrcode.min.js"></script>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
+
 html,body{
 height:100%;
 font-family:Poppins, sans-serif;
@@ -27,29 +28,39 @@ background:#1b5e20;
 color:white;
 text-align:center;
 padding:12px;
-font-weight:bold;
 font-size:18px;
+font-weight:bold;
 }
 
 .controls{
 background:white;
-padding:10px;
+padding:12px;
 display:flex;
 flex-direction:column;
-gap:8px;
+gap:10px;
 }
 
 select{
-padding:8px;
+width:100%;
+padding:10px;
+font-size:14px;
 border-radius:6px;
 border:1px solid #ccc;
 }
 
+#slotManual{
+display:none;
+}
+
+.small-text{
+font-size:12px;
+color:#555;
+}
+
 .options{
 display:flex;
-justify-content:space-between;
-align-items:center;
-font-size:14px;
+gap:15px;
+flex-wrap:wrap;
 }
 
 #reader{
@@ -86,21 +97,106 @@ Aplikasi e-PDP SMK Semenchu
 
 <select id="guru">
 <option value="">-- Pilih Nama Guru --</option>
-<option>SITI SANISAH BINTI SAMIAN</option>
+
+<!-- ALIRAN PERDANA -->
 <option>HJ. AMAD BAHRI BIN MARDI</option>
+<option>SITI SANISAH BINTI SAMIAN</option>
 <option>MOHD JAMIL BIN SALEH @ JAPRI</option>
+<option>HUZANA BINTI SARIJO</option>
+<option>FATIMAH ZOHORA BINTI NOH</option>
+<option>ZURAINI BINTI AHMAD</option>
+<option>ANIZA BINTI AHMAD</option>
+<option>JOHARI BIN JAMAT</option>
+<option>ALINA BINTI RAHMAN</option>
+<option>AHMAD FAHIM NAQIUDDIN BIN IBRAHIM</option>
+<option>FARIHAH AQILAH BINTI MOHD YAINI</option>
+<option>HAAFIDHAH BINTI ABU BAKAR SIDEK</option>
+<option>HANANI BINTI MAT HUSIN</option>
+<option>HANIDA BINTI SHAABAN</option>
+<option>HASLINA BINTI ZAKARIA</option>
+<option>HJH JUHANA BINTI JAFFAR</option>
+<option>KHADIJAH BINTI M. YUSUF</option>
+<option>MASSURA BINTI SIRAT</option>
+<option>MOHAMAD AMRAN BIN JASMANI</option>
+<option>MOHAMMAD JUNAIDI BIN SUWADI</option>
+<option>MOHD FARID BIN DAWAM</option>
+<option>MOHD HISHAMUDDIN BIN MD BASAR</option>
+<option>MUHAMMAD ALHAKIM BIN MUSTAFA</option>
+<option>MUHAMMAD FIKRI BIN ABD RAHMAN</option>
+<option>NOOR ADILAH BINTI FAUZI</option>
+<option>NOOR AZMIL BIN MISMAN</option>
+<option>NOOR FADZILLA ROZIETA BINTI HOSNIN</option>
+<option>NOOR NASRIN FARHAH BINTI SURIF</option>
+<option>NOORFARRAWATI BINTI MOHD HALIL</option>
+<option>NOR HAMIDA BINTI JUSOH</option>
+<option>NOREHAN BINTI SUJAICE</option>
+<option>NORFAIZAH BINTI ISNIN</option>
+<option>NORHAZLIN BINTI MAHAD</option>
+<option>NORLIDA BINTI HASHIM</option>
+<option>NORLIZA BINTI OTHMAN</option>
+<option>NUR NAJIHAH BT MOHD SAH</option>
+<option>NUR SHAFIQAH BINTI MOHAMAD</option>
+<option>NURADILAH BINTI KOSNAN</option>
+<option>NURAINI ABDUL RAZAK</option>
+<option>NURELISA FARAHIM BINTI ABDUL HADI</option>
+<option>NURFARIZA BINTI MOHAMAD SHAH</option>
+<option>NURUL AIN BINTI BAHIR</option>
+<option>NURUL ASHIKIN BINTI BAHAROM</option>
+<option>NURUL NADHIRAH BINTI AHMAD SHUKRI</option>
+<option>NURUL NAZURAH BINTI NORHISAM</option>
+<option>NURULHUDA BINTI RAHIM</option>
+<option>RAHAYU BINTI SULAIMAN</option>
+<option>ROSHALIZA BINTI ROMLI</option>
+<option>ROSLI BIN ABU AMIN</option>
+<option>ROSLINAH BINTI PARHAN</option>
+<option>SAFRY BIN SALLEH</option>
+<option>SALINA BINTI KHAMIS</option>
+<option>SITI HALINA BINTI JAMHARI</option>
+<option>SITI NOR KHAMLEZA BINTI TAMIN</option>
+<option>SUZANAH BINTI KASON</option>
+<option>SUZILA BINTI ABDULLAH</option>
+<option>UMAR FARUQ BIN MOHD ISMAIL</option>
+
+<!-- PPKI -->
+<option>MOHD HAZROY BIN SAF PERI</option>
+<option>RUHAIDAH BINTI ABD RAOB</option>
+<option>ROSLI BIN ABU AMIN</option>
+<option>NORLIDA BINTI HASHIM</option>
+
+</select>
+
+
+<label>
+<input type="checkbox" id="gantian">
+Mod Gantian
+</label>
+
+<div class="small-text">
+Gunakan mod ini jika anda terlupa imbas pada waktu sebenar.
+</div>
+
+<select id="slotManual">
+<option value="1">Slot 1</option>
+<option value="2">Slot 2</option>
+<option value="3">Slot 3</option>
+<option value="4">Slot 4</option>
+<option value="5">Slot 5</option>
+<option value="6">Slot 6</option>
+<option value="7">Slot 7</option>
+<option value="8">Slot 8</option>
+<option value="9">Slot 9</option>
+<option value="10">Slot 10</option>
+<option value="11">Slot 11</option>
+<option value="12">Slot 12</option>
+<option value="13">Slot 13</option>
+<option value="14">Slot 14</option>
+<option value="15">Slot 15</option>
 </select>
 
 <div class="options">
-<label>
-<input type="checkbox" id="gantian"> Mod Gantian
-</label>
-
-<div>
-<label><input type="radio" name="durasi" value="1" checked>30</label>
-<label><input type="radio" name="durasi" value="2">60</label>
-<label><input type="radio" name="durasi" value="3">90</label>
-</div>
+<label><input type="radio" name="durasi" value="1" checked> 30 min</label>
+<label><input type="radio" name="durasi" value="2"> 60 min</label>
+<label><input type="radio" name="durasi" value="3"> 90 min</label>
 </div>
 
 </div>
@@ -124,14 +220,11 @@ function autoDetectSlot(){
 const now = new Date();
 const hour = now.getHours();
 const min = now.getMinutes();
-
 const totalMin = hour*60 + min;
 const start = 7*60+30;
-
 let slot = Math.floor((totalMin - start)/30)+1;
 if(slot < 1) slot = 1;
 if(slot > 15) slot = 15;
-
 return slot;
 }
 
@@ -143,20 +236,23 @@ alert("Sila pilih nama guru dahulu");
 return;
 }
 
-const durasi = document.querySelector('input[name="durasi"]:checked').value;
-const gantian = document.getElementById("gantian").checked ? "RELIF" : "";
+const durasi = parseInt(document.querySelector('input[name="durasi"]:checked').value);
+const gantianAktif = document.getElementById("gantian").checked;
 
-const data = {
-kelas: qrMessage,
-slot: autoDetectSlot(),
-bil: parseInt(durasi),
-jenis: gantian
-};
+let slot = gantianAktif
+? parseInt(document.getElementById("slotManual").value)
+: autoDetectSlot();
 
 fetch(API_URL,{
 method:"POST",
-body:JSON.stringify(data)
-}).then(r=>r.json())
+body:JSON.stringify({
+kelas: qrMessage,
+slot: slot,
+bil: durasi,
+jenis: gantianAktif ? "GANTIAN" : ""
+})
+})
+.then(r=>r.json())
 .then(res=>{
 if(res.ok){
 navigator.vibrate(200);
@@ -167,26 +263,24 @@ setTimeout(()=>document.body.classList.remove("success"),500);
 
 }
 
-function onScanError(error){}
-
 function startScanner(){
 
 Html5Qrcode.getCameras().then(devices => {
 
 cameras = devices;
 
-if(cameras.length === 0){
+if(!cameras.length){
 alert("Tiada kamera dijumpai");
 return;
 }
 
-/* default pilih kamera belakang jika ada */
-let backCam = cameras.findIndex(cam =>
+/* pilih kamera belakang jika ada */
+let backIndex = cameras.findIndex(cam =>
 cam.label.toLowerCase().includes("back") ||
 cam.label.toLowerCase().includes("rear")
 );
 
-currentCameraIndex = backCam !== -1 ? backCam : 0;
+currentCameraIndex = backIndex !== -1 ? backIndex : 0;
 
 html5QrCode = new Html5Qrcode("reader");
 
@@ -194,281 +288,44 @@ html5QrCode.start(
 cameras[currentCameraIndex].id,
 {
 fps:10,
-qrbox: function(viewfinderWidth, viewfinderHeight) {
-let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-return Math.floor(minEdge * 0.75);
-}
+qrbox:(w,h)=>Math.floor(Math.min(w,h)*0.75)
 },
-onScanSuccess,
-onScanError
+onScanSuccess
 );
 
 });
 
 }
 
-<!DOCTYPE html>
-<html lang="ms">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Aplikasi e-PDP SMK Semenchu</title>
+document.addEventListener("DOMContentLoaded", function(){
 
-<script src="html5-qrcode.min.js"></script>
-
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{
-height:100%;
-font-family:Poppins, sans-serif;
-background:#d9f4e0;
-overflow:hidden;
-}
-
-.container{
-display:flex;
-flex-direction:column;
-height:100%;
-}
-
-.header{
-background:#1b5e20;
-color:white;
-text-align:center;
-padding:12px;
-font-weight:bold;
-font-size:18px;
-}
-
-.controls{
-background:white;
-padding:10px;
-display:flex;
-flex-direction:column;
-gap:8px;
-}
-
-select{
-padding:8px;
-border-radius:6px;
-border:1px solid #ccc;
-}
-
-.options{
-display:flex;
-justify-content:space-between;
-align-items:center;
-font-size:14px;
-}
-
-#reader{
-flex:1;
-width:100%;
-}
-
-.camera-btn{
-position:absolute;
-top:10px;
-right:10px;
-background:#ffffffcc;
-border:none;
-padding:8px;
-border-radius:50%;
-cursor:pointer;
-font-size:18px;
-}
-
-.success{
-background:#2e7d32 !important;
-}
-</style>
-</head>
-<body>
-
-<div class="container">
-
-<div class="header">
-Aplikasi e-PDP SMK Semenchu
-</div>
-
-<div class="controls">
-
-<select id="guru">
-<option value="">-- Pilih Nama Guru --</option>
-<option>SITI SANISAH BINTI SAMIAN</option>
-<option>HJ. AMAD BAHRI BIN MARDI</option>
-<option>MOHD JAMIL BIN SALEH @ JAPRI</option>
-</select>
-
-<div class="options">
-<label>
-<input type="checkbox" id="gantian"> Mod Gantian
-</label>
-
-<div>
-<label><input type="radio" name="durasi" value="1" checked>30</label>
-<label><input type="radio" name="durasi" value="2">60</label>
-<label><input type="radio" name="durasi" value="3">90</label>
-</div>
-</div>
-
-</div>
-
-<div style="position:relative;flex:1;">
-<div id="reader"></div>
-<button id="switchCam" class="camera-btn">🔄</button>
-</div>
-
-</div>
-
-<script>
-
-const API_URL = "https://script.google.com/macros/s/AKfycbwBDsXaUXgFMTFegyB_07CVrRxq02BB8R4_S8rolEYDkNSHiYvvHmUoywgZ0twnpzVzCw/exec";
-
-let html5QrCode;
-let cameras = [];
-let currentCameraIndex = 0;
-
-function autoDetectSlot(){
-const now = new Date();
-const hour = now.getHours();
-const min = now.getMinutes();
-
-const totalMin = hour*60 + min;
-const start = 7*60+30;
-
-let slot = Math.floor((totalMin - start)/30)+1;
-if(slot < 1) slot = 1;
-if(slot > 15) slot = 15;
-
-return slot;
-}
-
-function onScanSuccess(qrMessage){
-
-const guru = document.getElementById("guru").value;
-if(!guru){
-alert("Sila pilih nama guru dahulu");
-return;
-}
-
-const durasi = document.querySelector('input[name="durasi"]:checked').value;
-const gantian = document.getElementById("gantian").checked ? "RELIF" : "";
-
-const data = {
-kelas: qrMessage,
-slot: autoDetectSlot(),
-bil: parseInt(durasi),
-jenis: gantian
-};
-
-fetch(API_URL,{
-method:"POST",
-body:JSON.stringify(data)
-}).then(r=>r.json())
-.then(res=>{
-if(res.ok){
-navigator.vibrate(200);
-document.body.classList.add("success");
-setTimeout(()=>document.body.classList.remove("success"),500);
-}
+document.getElementById("gantian").addEventListener("change",function(){
+document.getElementById("slotManual").style.display =
+this.checked ? "block" : "none";
 });
 
-}
-
-function onScanError(error){}
-
-function startScanner(){
-
-Html5Qrcode.getCameras().then(devices => {
-
-cameras = devices;
-
-if(cameras.length === 0){
-alert("Tiada kamera dijumpai");
-return;
-}
-
-/* default pilih kamera belakang jika ada */
-let backCam = cameras.findIndex(cam =>
-cam.label.toLowerCase().includes("back") ||
-cam.label.toLowerCase().includes("rear")
-);
-
-currentCameraIndex = backCam !== -1 ? backCam : 0;
-
-html5QrCode = new Html5Qrcode("reader");
-
-html5QrCode.start(
-cameras[currentCameraIndex].id,
-{
-fps:10,
-qrbox: function(viewfinderWidth, viewfinderHeight) {
-let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-return Math.floor(minEdge * 0.75);
-}
-},
-onScanSuccess,
-onScanError
-);
-
-});
-
-}
-
-/* SWITCH CAMERA STABIL */
-
-/* SWITCH CAMERA STABIL V2 */
-document.getElementById("switchCam").addEventListener("click", async () => {
+document.getElementById("switchCam").addEventListener("click", async function(){
 
 if(!cameras.length) return;
 
-try {
+await html5QrCode.stop();
 
-    currentCameraIndex = (currentCameraIndex + 1) % cameras.length;
+currentCameraIndex =
+(currentCameraIndex+1) % cameras.length;
 
-    if(html5QrCode){
-        await html5QrCode.stop();
-        await html5QrCode.clear();
-    }
-
-    html5QrCode = new Html5Qrcode("reader");
-
-    await html5QrCode.start(
-        cameras[currentCameraIndex].id,
-        {
-            fps:10,
-            qrbox: function(viewfinderWidth, viewfinderHeight) {
-                let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-                return Math.floor(minEdge * 0.75);
-            }
-        },
-        onScanSuccess,
-        onScanError
-    );
-
-} catch(err){
-    console.error("Switch camera error:", err);
-}
+await html5QrCode.start(
+cameras[currentCameraIndex].id,
+{
+fps:10,
+qrbox:(w,h)=>Math.floor(Math.min(w,h)*0.75)
+},
+onScanSuccess
+);
 
 });
 
-  
-
-document.addEventListener("DOMContentLoaded", function(){
 startScanner();
-});
 
-</script>
-
-</body>
-</html>
-
-
-  
-
-document.addEventListener("DOMContentLoaded", function(){
-startScanner();
 });
 
 </script>
