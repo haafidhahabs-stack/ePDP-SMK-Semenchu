@@ -150,10 +150,16 @@ return;
 }
 
 html5QrCode = new Html5Qrcode("reader");
+  
+{
+  fps: 10,
+  qrbox: function(viewfinderWidth, viewfinderHeight) {
+    let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+    return Math.floor(minEdge * 0.75);
+  }
+},
 
-html5QrCode.start(
-cameras[currentCameraIndex].id,
-{ fps:10, qrbox:250 },
+  
 qrMessage => {
 
 const guru = document.getElementById("guru").value;
