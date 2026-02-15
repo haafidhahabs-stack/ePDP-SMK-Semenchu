@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Scan e-PDP</title>
+<title>Aplikasi e-PDP SMK Semenchu</title>
 
 <script src="html5-qrcode.min.js"></script>
 
@@ -27,13 +27,13 @@ background:#1b5e20;
 color:white;
 text-align:center;
 padding:12px;
-font-size:18px;
 font-weight:bold;
+font-size:18px;
 }
 
 .controls{
-padding:10px;
 background:white;
+padding:10px;
 display:flex;
 flex-direction:column;
 gap:8px;
@@ -86,17 +86,14 @@ Aplikasi e-PDP SMK Semenchu
 
 <select id="guru">
 <option value="">-- Pilih Nama Guru --</option>
-<option>HJ. AMAD BAHRI BIN MARDI</option>
 <option>SITI SANISAH BINTI SAMIAN</option>
+<option>HJ. AMAD BAHRI BIN MARDI</option>
 <option>MOHD JAMIL BIN SALEH @ JAPRI</option>
-<option>HUZANA BINTI SARIJO</option>
-<option>FATIMAH ZOHORA BINTI NOH</option>
 </select>
 
 <div class="options">
 <label>
-<input type="checkbox" id="gantian">
-Mod Gantian
+<input type="checkbox" id="gantian"> Mod Gantian
 </label>
 
 <div>
@@ -117,11 +114,11 @@ Mod Gantian
 
 <script>
 
-const API_URL = "PASTE_URL_APPS_SCRIPT_SINI";
+const API_URL = "PASTE_APPS_SCRIPT_URL_DI_SINI";
 
 let html5QrCode;
-let currentCameraIndex = 0;
 let cameras = [];
+let currentCameraIndex = 0;
 
 function autoDetectSlot(){
 const now = new Date();
@@ -150,16 +147,16 @@ return;
 }
 
 html5QrCode = new Html5Qrcode("reader");
-  
-{
-  fps: 10,
-  qrbox: function(viewfinderWidth, viewfinderHeight) {
-    let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-    return Math.floor(minEdge * 0.75);
-  }
-},
 
-  
+html5QrCode.start(
+cameras[currentCameraIndex].id,
+{
+fps:10,
+qrbox: function(viewfinderWidth, viewfinderHeight) {
+let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+return Math.floor(minEdge * 0.75);
+}
+},
 qrMessage => {
 
 const guru = document.getElementById("guru").value;
@@ -171,11 +168,9 @@ return;
 const durasi = document.querySelector('input[name="durasi"]:checked').value;
 const gantian = document.getElementById("gantian").checked ? "RELIF" : "";
 
-const slot = autoDetectSlot();
-
 const data = {
 kelas: qrMessage,
-slot: slot,
+slot: autoDetectSlot(),
 bil: parseInt(durasi),
 jenis: gantian
 };
@@ -212,7 +207,6 @@ startScanner();
 document.addEventListener("DOMContentLoaded", function(){
 startScanner();
 });
-
 
 </script>
 
