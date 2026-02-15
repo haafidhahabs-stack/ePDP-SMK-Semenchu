@@ -207,6 +207,215 @@ onScanError
 
 }
 
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Aplikasi e-PDP SMK Semenchu</title>
+
+<script src="html5-qrcode.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{
+height:100%;
+font-family:Poppins, sans-serif;
+background:#d9f4e0;
+overflow:hidden;
+}
+
+.container{
+display:flex;
+flex-direction:column;
+height:100%;
+}
+
+.header{
+background:#1b5e20;
+color:white;
+text-align:center;
+padding:12px;
+font-weight:bold;
+font-size:18px;
+}
+
+.controls{
+background:white;
+padding:10px;
+display:flex;
+flex-direction:column;
+gap:8px;
+}
+
+select{
+padding:8px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+.options{
+display:flex;
+justify-content:space-between;
+align-items:center;
+font-size:14px;
+}
+
+#reader{
+flex:1;
+width:100%;
+}
+
+.camera-btn{
+position:absolute;
+top:10px;
+right:10px;
+background:#ffffffcc;
+border:none;
+padding:8px;
+border-radius:50%;
+cursor:pointer;
+font-size:18px;
+}
+
+.success{
+background:#2e7d32 !important;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+Aplikasi e-PDP SMK Semenchu
+</div>
+
+<div class="controls">
+
+<select id="guru">
+<option value="">-- Pilih Nama Guru --</option>
+<option>SITI SANISAH BINTI SAMIAN</option>
+<option>HJ. AMAD BAHRI BIN MARDI</option>
+<option>MOHD JAMIL BIN SALEH @ JAPRI</option>
+</select>
+
+<div class="options">
+<label>
+<input type="checkbox" id="gantian"> Mod Gantian
+</label>
+
+<div>
+<label><input type="radio" name="durasi" value="1" checked>30</label>
+<label><input type="radio" name="durasi" value="2">60</label>
+<label><input type="radio" name="durasi" value="3">90</label>
+</div>
+</div>
+
+</div>
+
+<div style="position:relative;flex:1;">
+<div id="reader"></div>
+<button id="switchCam" class="camera-btn">🔄</button>
+</div>
+
+</div>
+
+<script>
+
+const API_URL = "https://script.google.com/macros/s/AKfycbwBDsXaUXgFMTFegyB_07CVrRxq02BB8R4_S8rolEYDkNSHiYvvHmUoywgZ0twnpzVzCw/exec";
+
+let html5QrCode;
+let cameras = [];
+let currentCameraIndex = 0;
+
+function autoDetectSlot(){
+const now = new Date();
+const hour = now.getHours();
+const min = now.getMinutes();
+
+const totalMin = hour*60 + min;
+const start = 7*60+30;
+
+let slot = Math.floor((totalMin - start)/30)+1;
+if(slot < 1) slot = 1;
+if(slot > 15) slot = 15;
+
+return slot;
+}
+
+function onScanSuccess(qrMessage){
+
+const guru = document.getElementById("guru").value;
+if(!guru){
+alert("Sila pilih nama guru dahulu");
+return;
+}
+
+const durasi = document.querySelector('input[name="durasi"]:checked').value;
+const gantian = document.getElementById("gantian").checked ? "RELIF" : "";
+
+const data = {
+kelas: qrMessage,
+slot: autoDetectSlot(),
+bil: parseInt(durasi),
+jenis: gantian
+};
+
+fetch(API_URL,{
+method:"POST",
+body:JSON.stringify(data)
+}).then(r=>r.json())
+.then(res=>{
+if(res.ok){
+navigator.vibrate(200);
+document.body.classList.add("success");
+setTimeout(()=>document.body.classList.remove("success"),500);
+}
+});
+
+}
+
+function onScanError(error){}
+
+function startScanner(){
+
+Html5Qrcode.getCameras().then(devices => {
+
+cameras = devices;
+
+if(cameras.length === 0){
+alert("Tiada kamera dijumpai");
+return;
+}
+
+/* default pilih kamera belakang jika ada */
+let backCam = cameras.findIndex(cam =>
+cam.label.toLowerCase().includes("back") ||
+cam.label.toLowerCase().includes("rear")
+);
+
+currentCameraIndex = backCam !== -1 ? backCam : 0;
+
+html5QrCode = new Html5Qrcode("reader");
+
+html5QrCode.start(
+cameras[currentCameraIndex].id,
+{
+fps:10,
+qrbox: function(viewfinderWidth, viewfinderHeight) {
+let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+return Math.floor(minEdge * 0.75);
+}
+},
+onScanSuccess,
+onScanError
+);
+
+});
+
+}
+
 /* SWITCH CAMERA STABIL */
 
 /* SWITCH CAMERA STABIL V2 */
@@ -243,6 +452,18 @@ try {
 }
 
 });
+
+  
+
+document.addEventListener("DOMContentLoaded", function(){
+startScanner();
+});
+
+</script>
+
+</body>
+</html>
+
 
   
 
