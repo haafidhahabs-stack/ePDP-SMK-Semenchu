@@ -1,54 +1,214 @@
 <!DOCTYPE html>
-<html>
+<html lang="ms">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Test Kamera</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Scan e-PDP</title>
 
-<script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+<script src="html5-qrcode.min.js"></script>
 
 <style>
-body{
-margin:0;
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{
+height:100%;
+font-family:Poppins, sans-serif;
 background:#d9f4e0;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
+overflow:hidden;
 }
+
+.container{
+display:flex;
+flex-direction:column;
+height:100%;
+}
+
+.header{
+background:#1b5e20;
+color:white;
+text-align:center;
+padding:12px;
+font-size:18px;
+font-weight:bold;
+}
+
+.controls{
+padding:10px;
+background:white;
+display:flex;
+flex-direction:column;
+gap:8px;
+}
+
+select{
+padding:8px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+.options{
+display:flex;
+justify-content:space-between;
+align-items:center;
+font-size:14px;
+}
+
 #reader{
+flex:1;
 width:100%;
-max-width:400px;
+}
+
+.camera-btn{
+position:absolute;
+top:10px;
+right:10px;
+background:#ffffffcc;
+border:none;
+padding:8px;
+border-radius:50%;
+cursor:pointer;
+font-size:18px;
+}
+
+.success{
+background:#2e7d32 !important;
 }
 </style>
 </head>
 <body>
 
+<div class="container">
+
+<div class="header">
+Aplikasi e-PDP SMK Semenchu
+</div>
+
+<div class="controls">
+
+<select id="guru">
+<option value="">-- Pilih Nama Guru --</option>
+<option>HJ. AMAD BAHRI BIN MARDI</option>
+<option>SITI SANISAH BINTI SAMIAN</option>
+<option>MOHD JAMIL BIN SALEH @ JAPRI</option>
+<option>HUZANA BINTI SARIJO</option>
+<option>FATIMAH ZOHORA BINTI NOH</option>
+</select>
+
+<div class="options">
+<label>
+<input type="checkbox" id="gantian">
+Mod Gantian
+</label>
+
+<div>
+<label><input type="radio" name="durasi" value="1" checked>30</label>
+<label><input type="radio" name="durasi" value="2">60</label>
+<label><input type="radio" name="durasi" value="3">90</label>
+</div>
+</div>
+
+</div>
+
+<div style="position:relative;flex:1;">
 <div id="reader"></div>
+<button id="switchCam" class="camera-btn">🔄</button>
+</div>
+
+</div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function(){
 
-const html5QrCode = new Html5Qrcode("reader");
+const API_URL = "PASTE_URL_APPS_SCRIPT_SINI";
+
+let html5QrCode;
+let currentCameraIndex = 0;
+let cameras = [];
+
+function autoDetectSlot(){
+const now = new Date();
+const hour = now.getHours();
+const min = now.getMinutes();
+
+const totalMin = hour*60 + min;
+const start = 7*60+30;
+
+let slot = Math.floor((totalMin - start)/30)+1;
+if(slot < 1) slot = 1;
+if(slot > 15) slot = 15;
+
+return slot;
+}
+
+function startScanner(){
 
 Html5Qrcode.getCameras().then(devices => {
 
-if (devices && devices.length) {
+cameras = devices;
+
+if(cameras.length === 0){
+alert("Tiada kamera dijumpai");
+return;
+}
+
+html5QrCode = new Html5Qrcode("reader");
 
 html5QrCode.start(
-devices[0].id,
+cameras[currentCameraIndex].id,
 { fps:10, qrbox:250 },
-qr => { alert("QR detect: " + qr); },
-err => {}
+qrMessage => {
+
+const guru = document.getElementById("guru").value;
+if(!guru){
+alert("Sila pilih nama guru dahulu");
+return;
+}
+
+const durasi = document.querySelector('input[name="durasi"]:checked').value;
+const gantian = document.getElementById("gantian").checked ? "RELIF" : "";
+
+const slot = autoDetectSlot();
+
+const data = {
+kelas: qrMessage,
+slot: slot,
+bil: parseInt(durasi),
+jenis: gantian
+};
+
+fetch(API_URL,{
+method:"POST",
+body:JSON.stringify(data)
+}).then(r=>r.json())
+.then(res=>{
+if(res.ok){
+navigator.vibrate(200);
+document.body.classList.add("success");
+setTimeout(()=>document.body.classList.remove("success"),500);
+}
+});
+
+},
+error => {}
+
 );
+
+});
 
 }
 
-}).catch(err => {
-alert("Camera error: " + err);
+document.getElementById("switchCam").addEventListener("click",()=>{
+if(!cameras.length) return;
+currentCameraIndex = (currentCameraIndex+1)%cameras.length;
+html5QrCode.stop().then(()=>{
+startScanner();
+});
 });
 
+document.getElementById("guru").addEventListener("change",()=>{
+if(this.value){
+startScanner();
+}
 });
+
 </script>
 
 </body>
