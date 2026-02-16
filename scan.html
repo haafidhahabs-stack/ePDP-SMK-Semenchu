@@ -282,8 +282,29 @@ document.getElementById("switchCam").addEventListener("click",switchCamera);
 /* ================= MOD GANTIAN ================= */
 
 document.getElementById("gantian").addEventListener("change",function(){
-document.getElementById("slotManual").style.display=this.checked?"block":"none";
+
+const dd = document.getElementById("slotManual");
+
+if(this.checked){
+
+    dd.style.display="block";
+
+    // bina slot default aliran perdana dulu
+    dd.innerHTML="";
+    perdanaTimes.forEach((t,i)=>{
+        const opt=document.createElement("option");
+        opt.value=i+1;
+        opt.textContent=t;
+        dd.appendChild(opt);
+    });
+
+}else{
+    dd.style.display="none";
+}
 });
+
+
+  
 
 /* ================= START ================= */
 
