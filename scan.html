@@ -48,18 +48,8 @@ border-radius:6px;
 border:1px solid #ccc;
 }
 
-.small-text{
-font-size:12px;
-color:#555;
-}
-
-#slotManual{
+#masaManual{
 display:none;
-}
-
-#reader{
-flex:1;
-width:100%;
 }
 
 .success{
@@ -81,10 +71,10 @@ Aplikasi e-PDP SMK Semenchu
 
 <label>
 <input type="checkbox" id="gantian">
-Mod Gantian (Lupa key-in)
+Mod Gantian (Lupa Key-In)
 </label>
 
-<select id="slotManual"></select>
+<select id="masaManual"></select>
 
 <div>
 <label><input type="radio" name="durasi" value="1" checked> 30 min</label>
@@ -92,13 +82,9 @@ Mod Gantian (Lupa key-in)
 <label><input type="radio" name="durasi" value="3"> 90 min</label>
 </div>
 
-<div class="small-text">
-Slot auto ikut masa semasa jika Mod Gantian tidak ditanda.
 </div>
 
-</div>
-
-<div id="reader"></div>
+<div id="reader" style="flex:1;"></div>
 
 </div>
 
@@ -108,82 +94,100 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFV
 
 let html5QrCode;
 
+/* ================= MASA ================= */
+
+const perdanaTimes = [
+"7.30 - 8.00","8.00 - 8.30","8.30 - 9.00","9.00 - 9.30","9.30 - 10.00",
+"10.00 - 10.30","10.30 - 11.00","11.00 - 11.30","11.30 - 12.00",
+"12.00 - 12.30","12.30 - 1.00","1.00 - 1.30","1.30 - 2.00",
+"2.00 - 2.30","2.30 - 3.00"
+];
+
+const ppkiTimes = [
+"7.20 - 8.00","8.00 - 8.30","8.30 - 9.00","9.00 - 9.30","9.30 - 10.00",
+"10.00 - 10.30","10.30 - 11.00","11.00 - 11.30","11.30 - 12.00",
+"12.00 - 12.30","12.30 - 1.00","1.00 - 1.30","1.30 - 2.00"
+];
+
+function isPPKI(kelas){
+return ["1 SAD","2 SMF","3 SAJ"].includes(kelas.trim());
+}
+
 /* ================= LOAD GURU ================= */
 
 async function loadGuru(){
-try{
-    const res = await fetch(API_URL);
-    const data = await res.json();
-    const select = document.getElementById("guru");
+const res = await fetch(API_URL);
+const data = await res.json();
 
-    select.innerHTML = '<option value="">-- Pilih Nama Guru --</option>';
+const select = document.getElementById("guru");
+select.innerHTML='<option value="">-- Pilih Nama Guru --</option>';
 
-    data.guru.forEach(nama=>{
-        const opt = document.createElement("option");
-        opt.value = nama;
-        opt.textContent = nama;
-        select.appendChild(opt);
-    });
-
-}catch(e){
-    console.error("Gagal load guru", e);
-}
+data.guru.forEach(n=>{
+const opt=document.createElement("option");
+opt.value=n;
+opt.textContent=n;
+select.appendChild(opt);
+});
 }
 
-/* ================= SLOT AUTO ================= */
+/* ================= AUTO SLOT ================= */
 
 function autoDetectSlot(){
 const now = new Date();
-const totalMin = now.getHours()*60 + now.getMinutes();
+const total = now.getHours()*60 + now.getMinutes();
 const start = 7*60+30;
-
-let slot = Math.floor((totalMin - start)/30)+1;
-if(slot < 1) slot = 1;
-if(slot > 15) slot = 15;
+let slot = Math.floor((total-start)/30)+1;
+if(slot<1) slot=1;
+if(slot>15) slot=15;
 return slot;
 }
 
-/* ================= SLOT MANUAL ================= */
+/* ================= BUILD MASA MANUAL ================= */
 
-function generateSlotManual(){
-const select = document.getElementById("slotManual");
-select.innerHTML = "";
+function buildManualMasa(kelas){
+const dd=document.getElementById("masaManual");
+dd.innerHTML="";
+const list = isPPKI(kelas)?ppkiTimes:perdanaTimes;
 
-for(let i=1;i<=15;i++){
-    let opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = "Slot " + i;
-    select.appendChild(opt);
+list.forEach((t,i)=>{
+const opt=document.createElement("option");
+opt.value=i+1;
+opt.textContent=t;
+dd.appendChild(opt);
+});
 }
-}
 
-/* ================= SCAN SUCCESS ================= */
+/* ================= SCAN ================= */
 
-function onScanSuccess(qrMessage){
+function onScanSuccess(qr){
 
-const guru = document.getElementById("guru").value;
+const guru=document.getElementById("guru").value;
 if(!guru){
 alert("Sila pilih nama guru dahulu");
 return;
 }
 
-const bil = parseInt(document.querySelector('input[name="durasi"]:checked').value);
-const gantian = document.getElementById("gantian").checked;
+buildManualMasa(qr);
 
-const slot = gantian
-? parseInt(document.getElementById("slotManual").value)
-: autoDetectSlot();
+let slot;
 
-const data = {
-kelas: qrMessage,
-slot: slot,
-bil: bil,
-jenis: gantian ? "GANTI" : ""
-};
+if(document.getElementById("gantian").checked){
+slot=parseInt(document.getElementById("masaManual").value);
+}else{
+slot=autoDetectSlot();
+}
+
+const bil=parseInt(document.querySelector('input[name="durasi"]:checked').value);
 
 fetch(API_URL,{
 method:"POST",
-body:JSON.stringify(data)
+body:JSON.stringify({
+guru:guru,
+kelas:qr,
+slot:slot,
+bil:bil,
+jenis:""
+})
 })
 .then(r=>r.json())
 .then(res=>{
@@ -196,41 +200,35 @@ setTimeout(()=>document.body.classList.remove("success"),500);
 
 }
 
-/* ================= START CAMERA ================= */
+/* ================= CAMERA ================= */
 
 async function startCamera(){
 
 try{
-    const devices = await Html5Qrcode.getCameras();
-    if(!devices.length){
-        alert("Tiada kamera dijumpai");
-        return;
-    }
+const devices=await Html5Qrcode.getCameras();
+if(!devices.length){alert("Tiada kamera");return;}
 
-    let backCam = devices.find(d =>
-        d.label.toLowerCase().includes("back") ||
-        d.label.toLowerCase().includes("rear")
-    );
+let back=devices.find(d=>
+d.label.toLowerCase().includes("back")||
+d.label.toLowerCase().includes("rear")
+);
 
-    const cameraId = backCam ? backCam.id : devices[0].id;
+const camId=back?back.id:devices[0].id;
 
-    html5QrCode = new Html5Qrcode("reader");
+html5QrCode=new Html5Qrcode("reader");
 
-    await html5QrCode.start(
-        cameraId,
-        {
-            fps:10,
-            qrbox:(w,h)=>{
-                let min = Math.min(w,h);
-                return Math.floor(min*0.75);
-            }
-        },
-        onScanSuccess
-    );
+await html5QrCode.start(
+camId,
+{
+fps:10,
+qrbox:(w,h)=>Math.floor(Math.min(w,h)*0.75)
+},
+onScanSuccess
+);
 
-}catch(err){
-    console.error(err);
-    alert("Gagal buka kamera");
+}catch(e){
+console.error(e);
+alert("Gagal buka kamera");
 }
 
 }
@@ -238,13 +236,12 @@ try{
 /* ================= INIT ================= */
 
 document.getElementById("gantian").addEventListener("change",function(){
-document.getElementById("slotManual").style.display =
-this.checked ? "block" : "none";
+document.getElementById("masaManual").style.display=
+this.checked?"block":"none";
 });
 
-document.addEventListener("DOMContentLoaded",async function(){
-generateSlotManual();
-await loadGuru();
+document.addEventListener("DOMContentLoaded",function(){
+loadGuru();
 startCamera();
 });
 
