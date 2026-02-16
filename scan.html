@@ -267,15 +267,30 @@ onScanError
 isScanning=true;
 }
 
-async function switchCamera(){
-if(!cameras.length) return;
-await html5QrCode.stop();
-isScanning=false;
-let i=cameras.findIndex(c=>c.id===currentCameraId);
-i=(i+1)%cameras.length;
-currentCameraId=cameras[i].id;
-startCamera();
+
+document.getElementById("gantian").addEventListener("change",function(){
+
+const dd = document.getElementById("slotManual");
+
+if(this.checked){
+
+    dd.style.display="block";
+
+    // bina slot default aliran perdana dulu
+    dd.innerHTML="";
+    perdanaTimes.forEach((t,i)=>{
+        const opt=document.createElement("option");
+        opt.value=i+1;
+        opt.textContent=t;
+        dd.appendChild(opt);
+    });
+
+}else{
+    dd.style.display="none";
 }
+});
+
+    
 
 document.getElementById("switchCam").addEventListener("click",switchCamera);
 
