@@ -27,7 +27,7 @@ height:100%;
 background:#1b5e20;
 color:white;
 text-align:center;
-padding:12px;
+padding:14px;
 font-size:18px;
 font-weight:bold;
 }
@@ -48,16 +48,9 @@ border-radius:6px;
 border:1px solid #ccc;
 }
 
-.options{
-display:flex;
-flex-wrap:wrap;
-gap:15px;
-align-items:center;
-}
-
 .small-text{
 font-size:12px;
-color:#666;
+color:#555;
 }
 
 #slotManual{
@@ -69,24 +62,11 @@ flex:1;
 width:100%;
 }
 
-.camera-btn{
-position:absolute;
-top:10px;
-right:10px;
-background:#ffffffcc;
-border:none;
-padding:8px;
-border-radius:50%;
-cursor:pointer;
-font-size:18px;
-}
-
 .success{
 background:#2e7d32 !important;
 }
 </style>
 </head>
-
 <body>
 
 <div class="container">
@@ -97,32 +77,28 @@ Aplikasi e-PDP SMK Semenchu
 
 <div class="controls">
 
-<select id="guru">
-<option>Memuatkan senarai guru...</option>
-</select>
+<select id="guru"></select>
 
 <label>
-<input type="checkbox" id="gantian"> Mod Gantian
+<input type="checkbox" id="gantian">
+Mod Gantian (Lupa key-in)
 </label>
-
-<div class="small-text">
-Gunakan mod ini jika anda terlupa imbas pada waktu sebenar.
-</div>
 
 <select id="slotManual"></select>
 
-<div class="options">
-<label><input type="radio" name="durasi" value="1" checked>30 min</label>
-<label><input type="radio" name="durasi" value="2">60 min</label>
-<label><input type="radio" name="durasi" value="3">90 min</label>
+<div>
+<label><input type="radio" name="durasi" value="1" checked> 30 min</label>
+<label><input type="radio" name="durasi" value="2"> 60 min</label>
+<label><input type="radio" name="durasi" value="3"> 90 min</label>
+</div>
+
+<div class="small-text">
+Slot auto ikut masa semasa jika Mod Gantian tidak ditanda.
 </div>
 
 </div>
 
-<div style="position:relative;flex:1;">
 <div id="reader"></div>
-
-</div>
 
 </div>
 
@@ -131,103 +107,85 @@ Gunakan mod ini jika anda terlupa imbas pada waktu sebenar.
 const API_URL = "https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
 
 let html5QrCode;
-let cameras = [];
-let currentCameraId;
-let isScanning = false;
-let lastQR = "";
 
 /* ================= LOAD GURU ================= */
 
-function loadGuru(){
-fetch(API_URL)
-.then(r=>r.json())
-.then(data=>{
-if(!data.ok) return;
-const dd = document.getElementById("guru");
-dd.innerHTML='<option value="">-- Pilih Nama Guru --</option>';
-data.guru.forEach(n=>{
-const opt=document.createElement("option");
-opt.value=n;
-opt.textContent=n;
-dd.appendChild(opt);
-});
-});
+async function loadGuru(){
+try{
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    const select = document.getElementById("guru");
+
+    select.innerHTML = '<option value="">-- Pilih Nama Guru --</option>';
+
+    data.guru.forEach(nama=>{
+        const opt = document.createElement("option");
+        opt.value = nama;
+        opt.textContent = nama;
+        select.appendChild(opt);
+    });
+
+}catch(e){
+    console.error("Gagal load guru", e);
+}
 }
 
-/* ================= MASA ================= */
-
-const perdanaTimes = [
-"7.30 - 8.00","8.00 - 8.30","8.30 - 9.00","9.00 - 9.30","9.30 - 10.00",
-"10.00 - 10.30","10.30 - 11.00","11.00 - 11.30","11.30 - 12.00",
-"12.00 - 12.30","12.30 - 1.00","1.00 - 1.30","1.30 - 2.00",
-"2.00 - 2.30","2.30 - 3.00"
-];
-
-const ppkiTimes = [
-"7.20 - 8.00","8.00 - 8.30","8.30 - 9.00","9.00 - 9.30","9.30 - 10.00",
-"10.00 - 10.30","10.30 - 11.00","11.00 - 11.30","11.30 - 12.00",
-"12.00 - 12.30","12.30 - 1.00","1.00 - 1.30","1.30 - 2.00"
-];
-
-function isPPKI(kelas){
-return ["1 SAD","2 SMF","3 SAJ"].includes(kelas.trim());
-}
-
-function buildSlotDropdown(kelas){
-const dd = document.getElementById("slotManual");
-dd.innerHTML="";
-const list = isPPKI(kelas)?ppkiTimes:perdanaTimes;
-list.forEach((t,i)=>{
-const opt=document.createElement("option");
-opt.value=i+1;
-opt.textContent=t;
-dd.appendChild(opt);
-});
-}
-
-/* ================= AUTO SLOT ================= */
+/* ================= SLOT AUTO ================= */
 
 function autoDetectSlot(){
 const now = new Date();
-const total = now.getHours()*60 + now.getMinutes();
+const totalMin = now.getHours()*60 + now.getMinutes();
 const start = 7*60+30;
-let slot = Math.floor((total-start)/30)+1;
-if(slot<1) slot=1;
-if(slot>15) slot=15;
+
+let slot = Math.floor((totalMin - start)/30)+1;
+if(slot < 1) slot = 1;
+if(slot > 15) slot = 15;
 return slot;
 }
 
-/* ================= SCAN ================= */
+/* ================= SLOT MANUAL ================= */
 
-function onScanSuccess(qr){
+function generateSlotManual(){
+const select = document.getElementById("slotManual");
+select.innerHTML = "";
 
-if(qr===lastQR) return;
-lastQR=qr;
+for(let i=1;i<=15;i++){
+    let opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = "Slot " + i;
+    select.appendChild(opt);
+}
+}
+
+/* ================= SCAN SUCCESS ================= */
+
+function onScanSuccess(qrMessage){
 
 const guru = document.getElementById("guru").value;
-if(!guru){ alert("Pilih nama guru dahulu"); return; }
-
-buildSlotDropdown(qr);
-
-let slot;
-if(document.getElementById("gantian").checked){
-slot = parseInt(document.getElementById("slotManual").value);
-}else{
-slot = autoDetectSlot();
+if(!guru){
+alert("Sila pilih nama guru dahulu");
+return;
 }
 
 const bil = parseInt(document.querySelector('input[name="durasi"]:checked').value);
+const gantian = document.getElementById("gantian").checked;
+
+const slot = gantian
+? parseInt(document.getElementById("slotManual").value)
+: autoDetectSlot();
+
+const data = {
+kelas: qrMessage,
+slot: slot,
+bil: bil,
+jenis: gantian ? "GANTI" : ""
+};
 
 fetch(API_URL,{
 method:"POST",
-body:JSON.stringify({
-guru:guru,
-kelas:qr,
-slot:slot,
-bil:bil,
-jenis:""
+body:JSON.stringify(data)
 })
-}).then(r=>r.json())
+.then(r=>r.json())
 .then(res=>{
 if(res.ok){
 navigator.vibrate(200);
@@ -238,88 +196,56 @@ setTimeout(()=>document.body.classList.remove("success"),500);
 
 }
 
-function onScanError(){}
-
-/* ================= CAMERA STABLE ================= */
-
-async function initCamera(){
-cameras = await Html5Qrcode.getCameras();
-if(!cameras.length){ alert("Tiada kamera"); return; }
-
-let back = cameras.find(c=>c.label.toLowerCase().includes("back")||c.label.toLowerCase().includes("rear"));
-currentCameraId = back?back.id:cameras[0].id;
-
-html5QrCode = new Html5Qrcode("reader");
-startCamera();
-}
+/* ================= START CAMERA ================= */
 
 async function startCamera(){
-if(isScanning) return;
-await html5QrCode.start(
-currentCameraId,
-{
-fps:10,
-qrbox:(w,h)=>Math.floor(Math.min(w,h)*0.75)
-},
-onScanSuccess,
-onScanError
-);
-isScanning=true;
+
+try{
+    const devices = await Html5Qrcode.getCameras();
+    if(!devices.length){
+        alert("Tiada kamera dijumpai");
+        return;
+    }
+
+    let backCam = devices.find(d =>
+        d.label.toLowerCase().includes("back") ||
+        d.label.toLowerCase().includes("rear")
+    );
+
+    const cameraId = backCam ? backCam.id : devices[0].id;
+
+    html5QrCode = new Html5Qrcode("reader");
+
+    await html5QrCode.start(
+        cameraId,
+        {
+            fps:10,
+            qrbox:(w,h)=>{
+                let min = Math.min(w,h);
+                return Math.floor(min*0.75);
+            }
+        },
+        onScanSuccess
+    );
+
+}catch(err){
+    console.error(err);
+    alert("Gagal buka kamera");
 }
 
+}
+
+/* ================= INIT ================= */
 
 document.getElementById("gantian").addEventListener("change",function(){
-
-const dd = document.getElementById("slotManual");
-
-if(this.checked){
-
-    dd.style.display="block";
-
-    // bina slot default aliran perdana dulu
-    dd.innerHTML="";
-    perdanaTimes.forEach((t,i)=>{
-        const opt=document.createElement("option");
-        opt.value=i+1;
-        opt.textContent=t;
-        dd.appendChild(opt);
-    });
-
-}else{
-    dd.style.display="none";
-}
+document.getElementById("slotManual").style.display =
+this.checked ? "block" : "none";
 });
 
-/* ================= MOD GANTIAN ================= */
-
-document.getElementById("gantian").addEventListener("change",function(){
-
-const dd = document.getElementById("slotManual");
-
-if(this.checked){
-
-    dd.style.display="block";
-
-    // bina slot default aliran perdana dulu
-    dd.innerHTML="";
-    perdanaTimes.forEach((t,i)=>{
-        const opt=document.createElement("option");
-        opt.value=i+1;
-        opt.textContent=t;
-        dd.appendChild(opt);
-    });
-
-}else{
-    dd.style.display="none";
-}
-});
-
-
-/* ================= START ================= */
-
-document.addEventListener("DOMContentLoaded",function(){
-loadGuru();
-initCamera();
+document.addEventListener("DOMContentLoaded",async function(){
+generateSlotManual();
+await loadGuru();
+startCamera();
 });
 
 </script>
