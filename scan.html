@@ -57,6 +57,7 @@ background:#2e7d32 !important;
 }
 </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -116,6 +117,7 @@ return ["1 SAD","2 SMF","3 SAJ"].includes(kelas.trim());
 /* ================= LOAD GURU ================= */
 
 async function loadGuru(){
+try{
 const res = await fetch(API_URL);
 const data = await res.json();
 
@@ -128,6 +130,9 @@ opt.value=n;
 opt.textContent=n;
 select.appendChild(opt);
 });
+}catch(e){
+console.error("Gagal load guru",e);
+}
 }
 
 /* ================= AUTO SLOT ================= */
@@ -142,19 +147,17 @@ if(slot>15) slot=15;
 return slot;
 }
 
-/* ================= BUILD MASA MANUAL ================= */
+/* ================= BUILD MASA ================= */
 
-function buildManualMasa(kelas){
+function buildManualMasa(list){
 const dd=document.getElementById("masaManual");
 dd.innerHTML="";
 
-const list = isPPKI(kelas)?ppkiTimes:perdanaTimes;
-
 list.forEach((masa,i)=>{
 const opt=document.createElement("option");
-opt.value=i+1;          // slot nombor
-opt.dataset.masa=masa;  // masa sebenar
-opt.textContent=masa;   // paparan masa
+opt.value=i+1;
+opt.dataset.masa=masa;
+opt.textContent=masa;
 dd.appendChild(opt);
 });
 }
@@ -169,18 +172,24 @@ alert("Sila pilih nama guru dahulu");
 return;
 }
 
-buildManualMasa(qr);
+let list = isPPKI(qr) ? ppkiTimes : perdanaTimes;
+
+if(document.getElementById("gantian").checked){
+buildManualMasa(list);
+}
 
 let slot;
 let masaText;
 
 if(document.getElementById("gantian").checked){
+
 const select=document.getElementById("masaManual");
 slot=parseInt(select.value);
 masaText=select.options[select.selectedIndex].dataset.masa;
+
 }else{
 slot=autoDetectSlot();
-masaText=perdanaTimes[slot-1];
+masaText=list[slot-1];
 }
 
 const bil=parseInt(document.querySelector('input[name="durasi"]:checked').value);
@@ -241,8 +250,16 @@ alert("Gagal buka kamera");
 /* ================= INIT ================= */
 
 document.getElementById("gantian").addEventListener("change",function(){
-document.getElementById("masaManual").style.display=
-this.checked?"block":"none";
+
+const dd=document.getElementById("masaManual");
+
+if(this.checked){
+dd.style.display="block";
+buildManualMasa(perdanaTimes); // default perdana dulu
+}else{
+dd.style.display="none";
+}
+
 });
 
 document.addEventListener("DOMContentLoaded",function(){
