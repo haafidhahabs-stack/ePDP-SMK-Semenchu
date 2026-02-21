@@ -131,7 +131,7 @@ opt.textContent=n;
 select.appendChild(opt);
 });
 }catch(e){
-console.error("Gagal load guru",e);
+console.error(e);
 }
 }
 
@@ -180,6 +180,7 @@ buildManualMasa(list);
 
 let slot;
 let masaText;
+let jenis = ""; // default guru asal
 
 if(document.getElementById("gantian").checked){
 
@@ -200,74 +201,13 @@ body:JSON.stringify({
 guru:guru,
 kelas:qr,
 slot:slot,
-masa:masaText,
 bil:bil,
-jenis:""
+jenis:jenis
 })
 })
 .then(r=>r.json())
 .then(res=>{
+
 if(res.ok){
 navigator.vibrate(200);
 document.body.classList.add("success");
-setTimeout(()=>document.body.classList.remove("success"),500);
-}
-});
-
-}
-
-/* ================= CAMERA ================= */
-
-async function startCamera(){
-try{
-const devices=await Html5Qrcode.getCameras();
-if(!devices.length){alert("Tiada kamera");return;}
-
-let back=devices.find(d=>
-d.label.toLowerCase().includes("back")||
-d.label.toLowerCase().includes("rear")
-);
-
-const camId=back?back.id:devices[0].id;
-
-html5QrCode=new Html5Qrcode("reader");
-
-await html5QrCode.start(
-camId,
-{
-fps:10,
-qrbox:(w,h)=>Math.floor(Math.min(w,h)*0.75)
-},
-onScanSuccess
-);
-
-}catch(e){
-console.error(e);
-alert("Gagal buka kamera");
-}
-}
-
-/* ================= INIT ================= */
-
-document.getElementById("gantian").addEventListener("change",function(){
-
-const dd=document.getElementById("masaManual");
-
-if(this.checked){
-dd.style.display="block";
-buildManualMasa(perdanaTimes); // default perdana dulu
-}else{
-dd.style.display="none";
-}
-
-});
-
-document.addEventListener("DOMContentLoaded",function(){
-loadGuru();
-startCamera();
-});
-
-</script>
-
-</body>
-</html>
