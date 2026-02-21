@@ -1,86 +1,254 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aplikasi e-PDP SMK Semenchu</title>
+
+<script src="html5-qrcode.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html,body{
+height:100%;
+font-family:Poppins, sans-serif;
+background:#d9f4e0;
+overflow:hidden;
+}
+
+.container{
+display:flex;
+flex-direction:column;
+height:100%;
+}
+
+.header{
+background:#1b5e20;
+color:white;
+text-align:center;
+padding:12px;
+font-size:18px;
+font-weight:bold;
+}
+
+.controls{
+background:white;
+padding:12px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+select{
+width:100%;
+padding:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+.options{
+display:flex;
+gap:15px;
+align-items:center;
+flex-wrap:wrap;
+}
+
+#manualTime{
+display:none;
+}
+
+#reader{
+flex:1;
+width:100%;
+}
+
+.success{
+background:#2e7d32 !important;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+Aplikasi e-PDP SMK Semenchu
+</div>
+
+<div class="controls">
+
+<select id="guru"></select>
+
+<label>
+<input type="checkbox" id="gantian">
+Mod Gantian (Pilih Masa Manual)
+</label>
+
+<div class="options">
+<label><input type="radio" name="durasi" value="1" checked>30 min</label>
+<label><input type="radio" name="durasi" value="2">60 min</label>
+<label><input type="radio" name="durasi" value="3">90 min</label>
+</div>
+
+<select id="manualTime"></select>
+
+</div>
+
+<div id="reader"></div>
+
+</div>
+
 <script>
+
+/* ================= CONFIG ================= */
 
 const API_URL =
 "https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
 
+/* ================= GURU LIST ================= */
+
+const guruList = [
+"HAAFIDHAH BINTI ABU BAKAR SIDEK",
+"SITI SANISAH BINTI SAMIAN",
+"HJ. AMAD BAHRI BIN MARDI",
+"MOHD JAMIL BIN SALEH @ JAPRI"
+];
+
+const guruSelect=document.getElementById("guru");
+guruList.forEach(g=>{
+let o=document.createElement("option");
+o.textContent=g;
+guruSelect.appendChild(o);
+});
+
+/* ================= MASA SEKOLAH ================= */
+
+const masaSlots=[
+"7:30","8:00","8:30","9:00","9:30","10:00",
+"10:30","11:00","11:30","12:00",
+"12:30","13:00","13:30","14:00","14:30"
+];
+
+const manualSelect=document.getElementById("manualTime");
+
+masaSlots.forEach((m,i)=>{
+let opt=document.createElement("option");
+opt.value=i+1;
+opt.textContent="Slot "+(i+1)+" ("+m+")";
+manualSelect.appendChild(opt);
+});
+
+/* toggle manual mode */
+document.getElementById("gantian").onchange=e=>{
+manualSelect.style.display=e.target.checked?"block":"none";
+};
+
+/* ================= AUTO SLOT ================= */
+
+function autoDetectSlot(){
+let now=new Date();
+let total=now.getHours()*60+now.getMinutes();
+let start=7*60+30;
+
+let slot=Math.floor((total-start)/30)+1;
+if(slot<1)slot=1;
+if(slot>15)slot=15;
+
+return slot;
+}
+
+/* ================= SCANNER ================= */
+
 let scanner;
 
-/* ===== AUTO SLOT ===== */
-function autoSlot(){
-  const now = new Date();
-  const start = 7*60+30;
-  const total = now.getHours()*60 + now.getMinutes();
-  let slot = Math.floor((total-start)/30)+1;
-  if(slot<1) slot=1;
-  if(slot>15) slot=15;
-  return slot;
-}
-
-/* ===== SUCCESS SCAN ===== */
-function onScanSuccess(text){
-
-  const guru=document.getElementById("guru").value;
-  if(!guru){
-    alert("Pilih nama guru dahulu");
-    return;
-  }
-
-  const bil=document.querySelector('input[name="durasi"]:checked').value;
-  const gantian=document.getElementById("gantian").checked;
-
-  const data={
-    kelas:text,
-    slot:autoSlot(),
-    bil:parseInt(bil),
-    jenis:gantian?"GANTIAN":""
-  };
-
-  fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify(data)
-  })
-  .then(r=>r.json())
-  .then(()=>{
-      navigator.vibrate?.(200);
-      document.body.classList.add("success");
-      setTimeout(()=>document.body.classList.remove("success"),500);
-  });
-}
-
-/* ===== START CAMERA (ULTRA STABLE) ===== */
 async function startScanner(){
 
-  scanner = new Html5Qrcode("reader");
-
-  const devices = await Html5Qrcode.getCameras();
-
-  if(!devices.length){
-    alert("Tiada kamera dijumpai");
-    return;
-  }
-
-  /* pilih kamera belakang */
-  let back = devices.find(d =>
-      d.label.toLowerCase().includes("back") ||
-      d.label.toLowerCase().includes("rear")
-  );
-
-  const cameraId = back ? back.id : devices[0].id;
-
-  scanner.start(
-    cameraId,
-    {
-      fps:10,
-      qrbox:(w,h)=>{
-        const size=Math.min(w,h);
-        return size*0.75;
-      }
-    },
-    onScanSuccess
-  );
+const cameras=await Html5Qrcode.getCameras();
+if(!cameras.length){
+alert("Tiada kamera");
+return;
 }
 
-/* ===== AUTO START ===== */
-document.addEventListener("DOMContentLoaded", startScanner);
+/* pilih kamera belakang */
+let back=cameras.find(c=>
+c.label.toLowerCase().includes("back")||
+c.label.toLowerCase().includes("rear")
+);
+
+const camId=back?back.id:cameras[0].id;
+
+scanner=new Html5Qrcode("reader");
+
+scanner.start(
+camId,
+{
+fps:10,
+qrbox:(w,h)=>{
+let min=Math.min(w,h);
+return Math.floor(min*0.75);
+}
+},
+onScanSuccess
+);
+
+}
+
+/* ================= SCAN SUCCESS ================= */
+
+function onScanSuccess(text){
+
+/* FIX FORMAT QR */
+if(text.includes("|")){
+text=text.split("|")[1].trim();
+}
+
+const guru=guruSelect.value;
+if(!guru){
+alert("Sila pilih nama guru");
+return;
+}
+
+const bil=parseInt(
+document.querySelector('input[name="durasi"]:checked').value
+);
+
+const manual=document.getElementById("gantian").checked;
+
+let slot=manual
+?parseInt(manualSelect.value)
+:autoDetectSlot();
+
+const data={
+kelas:text,
+slot:slot,
+bil:bil,
+jenis:""
+};
+
+fetch(API_URL,{
+method:"POST",
+body:JSON.stringify(data)
+})
+.then(r=>r.json())
+.then(res=>{
+if(res.ok){
+navigator.vibrate(200);
+document.body.classList.add("success");
+setTimeout(()=>{
+document.body.classList.remove("success");
+},500);
+}
+});
+
+}
+
+/* ================= START ================= */
+
+document.addEventListener("DOMContentLoaded",startScanner);
 
 </script>
+
+</body>
+</html>
