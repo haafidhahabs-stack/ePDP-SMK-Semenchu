@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
 <title>Aplikasi e-PDP SMK Semenchu</title>
 
 <script src="html5-qrcode.min.js"></script>
 
 <style>
+
 *{margin:0;padding:0;box-sizing:border-box;}
 
 html,body{
 height:100%;
-font-family:Poppins, sans-serif;
+font-family:Poppins,sans-serif;
 background:#d9f4e0;
 overflow:hidden;
 }
@@ -28,8 +31,8 @@ background:#1b5e20;
 color:white;
 text-align:center;
 padding:12px;
-font-size:18px;
 font-weight:bold;
+font-size:18px;
 }
 
 .controls{
@@ -41,21 +44,14 @@ gap:10px;
 }
 
 select{
-width:100%;
 padding:10px;
 border-radius:6px;
 border:1px solid #ccc;
+font-size:14px;
 }
 
 .options{
-display:flex;
-gap:15px;
-align-items:center;
-flex-wrap:wrap;
-}
-
-#manualTime{
-display:none;
+font-size:14px;
 }
 
 #reader{
@@ -64,8 +60,14 @@ width:100%;
 }
 
 .success{
-background:#2e7d32 !important;
+background:#2e7d32!important;
 }
+
+.small{
+font-size:12px;
+color:#666;
+}
+
 </style>
 </head>
 
@@ -86,13 +88,15 @@ Aplikasi e-PDP SMK Semenchu
 Mod Gantian (Pilih Masa Manual)
 </label>
 
-<div class="options">
-<label><input type="radio" name="durasi" value="1" checked>30 min</label>
-<label><input type="radio" name="durasi" value="2">60 min</label>
-<label><input type="radio" name="durasi" value="3">90 min</label>
-</div>
+<div id="masaManual" style="display:none">
 
-<select id="manualTime"></select>
+<label><input type="radio" name="durasi" value="1" checked> 30 min</label>
+<label><input type="radio" name="durasi" value="2"> 60 min</label>
+<label><input type="radio" name="durasi" value="3"> 90 min</label>
+
+<div class="small">Digunakan jika terlupa scan</div>
+
+</div>
 
 </div>
 
@@ -102,76 +106,137 @@ Mod Gantian (Pilih Masa Manual)
 
 <script>
 
-/* ================= CONFIG ================= */
+/* =========================
+   SETTINGS
+========================= */
 
 const API_URL =
 "https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
 
-/* ================= GURU LIST ================= */
+
+/* =========================
+   GURU AUTO LOAD
+========================= */
 
 const guruList = [
-"HAAFIDHAH BINTI ABU BAKAR SIDEK",
-"SITI SANISAH BINTI SAMIAN",
-"HJ. AMAD BAHRI BIN MARDI",
-"MOHD JAMIL BIN SALEH @ JAPRI"
+"Haafidhah Binti Abu Bakar Sidek",
+"Siti Sanisah Binti Samian",
+"Hj. Amad Bahri Bin Mardi",
+"Mohd Jamil Bin Saleh @ Japri"
 ];
 
 const guruSelect=document.getElementById("guru");
-guruList.forEach(g=>{
-let o=document.createElement("option");
-o.textContent=g;
-guruSelect.appendChild(o);
-});
 
-/* ================= MASA SEKOLAH ================= */
-
-const masaSlots=[
-"7:30","8:00","8:30","9:00","9:30","10:00",
-"10:30","11:00","11:30","12:00",
-"12:30","13:00","13:30","14:00","14:30"
-];
-
-const manualSelect=document.getElementById("manualTime");
-
-masaSlots.forEach((m,i)=>{
+guruList.forEach(n=>{
 let opt=document.createElement("option");
-opt.value=i+1;
-opt.textContent="Slot "+(i+1)+" ("+m+")";
-manualSelect.appendChild(opt);
+opt.value=n;
+opt.textContent=n.toUpperCase();
+guruSelect.appendChild(opt);
 });
 
-/* toggle manual mode */
-document.getElementById("gantian").onchange=e=>{
-manualSelect.style.display=e.target.checked?"block":"none";
-};
 
-/* ================= AUTO SLOT ================= */
+/* =========================
+   MOD GANTIAN UI
+========================= */
+
+document.getElementById("gantian")
+.addEventListener("change",e=>{
+document.getElementById("masaManual")
+.style.display=e.target.checked?"block":"none";
+});
+
+
+/* =========================
+   AUTO SLOT
+========================= */
 
 function autoDetectSlot(){
-let now=new Date();
-let total=now.getHours()*60+now.getMinutes();
-let start=7*60+30;
 
+const now=new Date();
+const total=now.getHours()*60+now.getMinutes();
+
+const start=7*60+20; // 7:20 pagi
 let slot=Math.floor((total-start)/30)+1;
+
 if(slot<1)slot=1;
-if(slot>15)slot=15;
+if(slot>13)slot=13;
 
 return slot;
 }
 
-/* ================= SCANNER ================= */
 
-let scanner;
+/* =========================
+   SCAN SUCCESS
+========================= */
 
-async function startScanner(){
+function onScanSuccess(qrMessage){
 
-const cameras=await Html5Qrcode.getCameras();
-if(!cameras.length){
-alert("Tiada kamera");
+const guru=guruSelect.value;
+
+if(!guru){
+alert("Sila pilih nama guru");
 return;
 }
 
-/* pilih kamera belakang */
+const gantian=document.getElementById("gantian").checked;
+
+let bil,slot,jenis="";
+
+if(gantian){
+bil=document.querySelector('input[name="durasi"]:checked').value;
+slot="MANUAL";
+jenis="GANTIAN";
+}else{
+bil=1;
+slot=autoDetectSlot();
+}
+
+fetch(API_URL,{
+method:"POST",
+body:JSON.stringify({
+kelas:qrMessage,
+guru:guru,
+slot:slot,
+bil:parseInt(bil),
+jenis:jenis
+})
+})
+.then(r=>r.json())
+.then(res=>{
+
+if(res.ok){
+
+navigator.vibrate(200);
+
+document.body.classList.add("success");
+
+setTimeout(()=>{
+document.body.classList.remove("success");
+},500);
+
+}
+
+});
+
+}
+
+
+/* =========================
+   START CAMERA (STABIL)
+========================= */
+
+let html5QrCode;
+
+async function startCamera(){
+
+const cameras=await Html5Qrcode.getCameras();
+
+if(!cameras.length){
+alert("Kamera tidak dijumpai");
+return;
+}
+
+/* auto pilih kamera belakang */
 let back=cameras.find(c=>
 c.label.toLowerCase().includes("back")||
 c.label.toLowerCase().includes("rear")
@@ -179,74 +244,22 @@ c.label.toLowerCase().includes("rear")
 
 const camId=back?back.id:cameras[0].id;
 
-scanner=new Html5Qrcode("reader");
+html5QrCode=new Html5Qrcode("reader");
 
-scanner.start(
+html5QrCode.start(
 camId,
 {
 fps:10,
-qrbox:(w,h)=>{
-let min=Math.min(w,h);
-return Math.floor(min*0.75);
-}
+qrbox:{width:250,height:250},
+aspectRatio:1.0
 },
-onScanSuccess
+onScanSuccess,
+()=>{}
 );
 
 }
 
-/* ================= SCAN SUCCESS ================= */
-
-function onScanSuccess(text){
-
-/* FIX FORMAT QR */
-if(text.includes("|")){
-text=text.split("|")[1].trim();
-}
-
-const guru=guruSelect.value;
-if(!guru){
-alert("Sila pilih nama guru");
-return;
-}
-
-const bil=parseInt(
-document.querySelector('input[name="durasi"]:checked').value
-);
-
-const manual=document.getElementById("gantian").checked;
-
-let slot=manual
-?parseInt(manualSelect.value)
-:autoDetectSlot();
-
-const data={
-kelas:text,
-slot:slot,
-bil:bil,
-jenis:""
-};
-
-fetch(API_URL,{
-method:"POST",
-body:JSON.stringify(data)
-})
-.then(r=>r.json())
-.then(res=>{
-if(res.ok){
-navigator.vibrate(200);
-document.body.classList.add("success");
-setTimeout(()=>{
-document.body.classList.remove("success");
-},500);
-}
-});
-
-}
-
-/* ================= START ================= */
-
-document.addEventListener("DOMContentLoaded",startScanner);
+document.addEventListener("DOMContentLoaded",startCamera);
 
 </script>
 
