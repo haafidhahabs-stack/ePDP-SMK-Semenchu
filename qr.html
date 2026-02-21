@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<title>QR e-PDP SMK Semenchu</title>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+<style>
+body{
+font-family: Arial, sans-serif;
+margin:0;
+padding:0;
+background:white;
+}
+
+.page{
+width:210mm;
+height:297mm;
+padding:20mm;
+box-sizing:border-box;
+page-break-after:always;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+text-align:center;
+}
+
+.school-title{
+font-size:22px;
+font-weight:bold;
+margin-bottom:20px;
+}
+
+.class-title{
+font-size:26px;
+font-weight:bold;
+margin:15px 0;
+}
+
+.qr-block{
+margin:20px 0;
+}
+
+.qr-box{
+padding:15px;
+border:2px solid black;
+display:inline-block;
+}
+
+.qr-relif{
+border:6px solid black;
+}
+
+.label{
+font-size:18px;
+margin-bottom:10px;
+font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div id="container"></div>
+
+<script>
+
+/* ================= SENARAI KELAS ================= */
+
+const classes = [
+
+"1 SLM","1 SAH","1 SAR","1 SHS","1 SAI",
+"2 SLM","2 SAH","2 SAR","2 SHS","2 SAI",
+"3 SLM","3 SAH","3 SAR","3 SHS","3 SAI",
+"4 SAD","4 SMF","4 SAJ","4 SAB","4 SMD",
+"5 SAD","5 SMF","5 SAJ","5 SAB","5 SMD",
+
+/* PPKI */
+"1 SAD","2 SMF","3 SAJ"
+
+];
+
+
+/* ================= GENERATE ================= */
+
+const container = document.getElementById("container");
+
+classes.forEach(cls=>{
+
+const page = document.createElement("div");
+page.className = "page";
+
+page.innerHTML = `
+<div class="school-title">e-PDP SMK Semenchu</div>
+
+<div class="class-title">KELAS ${cls}</div>
+
+<div class="qr-block">
+<div class="label">QR KELAS ${cls}</div>
+<div id="class-${cls}" class="qr-box"></div>
+</div>
+
+<div class="qr-block">
+<div class="label">QR RELIF ${cls}</div>
+<div id="relif-${cls}" class="qr-box qr-relif"></div>
+</div>
+`;
+
+container.appendChild(page);
+
+new QRCode(document.getElementById(`class-${cls}`), {
+text: `CLASS|${cls}`,
+width: 220,
+height: 220
+});
+
+new QRCode(document.getElementById(`relif-${cls}`), {
+text: `RELIF|${cls}`,
+width: 220,
+height: 220
+});
+
+});
+
+</script>
+
+</body>
+</html>
