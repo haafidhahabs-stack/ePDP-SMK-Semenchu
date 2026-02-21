@@ -72,7 +72,7 @@ Aplikasi e-PDP SMK Semenchu
 
 <label>
 <input type="checkbox" id="gantian">
-Mod Gantian (Lupa Key-In)
+Mod Gantian (Pilih Masa Manual)
 </label>
 
 <select id="masaManual"></select>
@@ -117,7 +117,6 @@ return ["1 SAD","2 SMF","3 SAJ"].includes(kelas.trim());
 /* ================= LOAD GURU ================= */
 
 async function loadGuru(){
-try{
 const res = await fetch(API_URL);
 const data = await res.json();
 
@@ -130,9 +129,6 @@ opt.value=n;
 opt.textContent=n;
 select.appendChild(opt);
 });
-}catch(e){
-console.error(e);
-}
 }
 
 /* ================= AUTO SLOT ================= */
@@ -147,12 +143,9 @@ if(slot>15) slot=15;
 return slot;
 }
 
-/* ================= BUILD MASA ================= */
-
 function buildManualMasa(list){
 const dd=document.getElementById("masaManual");
 dd.innerHTML="";
-
 list.forEach((masa,i)=>{
 const opt=document.createElement("option");
 opt.value=i+1;
@@ -164,7 +157,12 @@ dd.appendChild(opt);
 
 /* ================= SCAN ================= */
 
-function onScanSuccess(qr){
+function onScanSuccess(qrText){
+
+if(!qrText.includes("|")){
+alert("QR tidak sah");
+return;
+}
 
 const guru=document.getElementById("guru").value;
 if(!guru){
@@ -172,34 +170,40 @@ alert("Sila pilih nama guru dahulu");
 return;
 }
 
-let list = isPPKI(qr) ? ppkiTimes : perdanaTimes;
+/* ===== DETECT TYPE ===== */
+let jenis="";
+let kelas="";
 
-if(document.getElementById("gantian").checked){
-buildManualMasa(list);
+if(qrText.startsWith("RELIF|")){
+jenis="RELIF";
+kelas=qrText.split("|")[1];
+}else if(qrText.startsWith("CLASS|")){
+kelas=qrText.split("|")[1];
+}else{
+alert("QR tidak dikenali");
+return;
 }
 
+/* ===== PILIH MASA ===== */
+let list = isPPKI(kelas) ? ppkiTimes : perdanaTimes;
+
 let slot;
-let masaText;
-let jenis = ""; // default guru asal
-
 if(document.getElementById("gantian").checked){
-
-const select=document.getElementById("masaManual");
-slot=parseInt(select.value);
-masaText=select.options[select.selectedIndex].dataset.masa;
-
+buildManualMasa(list);
+slot=parseInt(document.getElementById("masaManual").value);
 }else{
 slot=autoDetectSlot();
-masaText=list[slot-1];
 }
 
 const bil=parseInt(document.querySelector('input[name="durasi"]:checked').value);
+
+/* ===== HANTAR ===== */
 
 fetch(API_URL,{
 method:"POST",
 body:JSON.stringify({
 guru:guru,
-kelas:qr,
+kelas:kelas,
 slot:slot,
 bil:bil,
 jenis:jenis
@@ -207,7 +211,68 @@ jenis:jenis
 })
 .then(r=>r.json())
 .then(res=>{
-
 if(res.ok){
 navigator.vibrate(200);
 document.body.classList.add("success");
+setTimeout(()=>document.body.classList.remove("success"),500);
+alert(res.message);
+}else{
+alert(res.message);
+}
+})
+.catch(()=>{
+alert("Ralat sistem");
+});
+
+}
+
+/* ================= CAMERA ================= */
+
+async function startCamera(){
+try{
+const devices=await Html5Qrcode.getCameras();
+if(!devices.length){alert("Tiada kamera");return;}
+
+let back=devices.find(d=>
+d.label.toLowerCase().includes("back")||
+d.label.toLowerCase().includes("rear")
+);
+
+const camId=back?back.id:devices[0].id;
+
+html5QrCode=new Html5Qrcode("reader");
+
+await html5QrCode.start(
+camId,
+{
+fps:10,
+qrbox:(w,h)=>Math.floor(Math.min(w,h)*0.75)
+},
+onScanSuccess
+);
+
+}catch(e){
+alert("Gagal buka kamera");
+}
+}
+
+/* ================= INIT ================= */
+
+document.getElementById("gantian").addEventListener("change",function(){
+const dd=document.getElementById("masaManual");
+if(this.checked){
+dd.style.display="block";
+}else{
+dd.style.display="none";
+}
+});
+
+document.addEventListener("DOMContentLoaded",function(){
+loadGuru();
+startCamera();
+});
+
+</script>
+
+</body>
+</html>
