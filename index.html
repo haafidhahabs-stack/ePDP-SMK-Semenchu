@@ -241,45 +241,17 @@ function toMin(h,m){ return h*60+m; }
 
 /* ===== baca & warnakan jadual ===== */
 async function loadRekod(){
-  try{
-    const res = await fetch(API_URL);
-    const data = await res.json();
-
-    if(!data.rows) return;
-
-    const rows = data.rows;
-
-    rows.forEach(r=>{
-      const kelas = r.kelas;
-      const slotMula = r.slot;
-      const bil = r.bil;
-      const jenis = r.jenis;
-
-      const row = [...document.querySelectorAll("td.kelas")]
-        .find(td => td.textContent.trim() === kelas)
-        ?.parentElement;
-
-      if(!row) return;
-
-      for(let i=0;i<bil;i++){
-        const slotNo = slotMula + i;
-        const cell = row.children[slotNo];
-        if(!cell || cell.classList.contains("off")) continue;
-
-        if(jenis === "RELIF"){
-          cell.style.background = "#9c27b0";
-        }else if(bil >= 2){
-          cell.style.background = "#2e7d32";
-        }else{
-          cell.style.background = "#1e88e5";
-        }
-      }
-    });
-
-  }catch(e){
-    console.error("Gagal baca rekod", e);
-  }
-}
+  const res = await fetch(API_URL);  const data = await res.json();
+  if(!data.ok) return;
+  const rows = data.rows;
+  rows.forEach(r=>{
+    const kelas = r.Kelas;    const slotMula = Number(r.Slot);    const bil = Number(r.Bil);    const jenis = r.Jenis;
+    const row = [...document.querySelectorAll("td.kelas")]      .find(td => td.textContent.trim() === kelas)      ?.parentElement;
+    if(!row) return;
+    for(let i=0;i<bil;i++){
+      const cell = row.children[slotMula + i];      if(!cell) continue;
+      if(jenis==="RELIF"){        cell.style.background="#9c27b0"; // ungu      }else if(bil>=2){        cell.style.background="#2e7d32"; // hijau      }else{        cell.style.background="#1e88e5"; // biru      }
+    }  });}
 
 document.addEventListener("DOMContentLoaded", loadRekod);
 
@@ -289,6 +261,7 @@ document.addEventListener("DOMContentLoaded", loadRekod);
   
 </body>
 </html>
+
 
 
 
