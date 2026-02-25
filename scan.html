@@ -3,8 +3,7 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Aplikasi e-PDP SMK Semenchu</title>
 
 <script src="html5-qrcode.min.js"></script>
@@ -28,15 +27,15 @@ height:100%;
 
 .header{
 background:#1b5e20;
-color:white;
+color:#fff;
 text-align:center;
 padding:12px;
-font-weight:bold;
 font-size:18px;
+font-weight:bold;
 }
 
 .controls{
-background:white;
+background:#fff;
 padding:12px;
 display:flex;
 flex-direction:column;
@@ -44,6 +43,7 @@ gap:10px;
 }
 
 select{
+width:100%;
 padding:10px;
 border-radius:6px;
 border:1px solid #ccc;
@@ -51,7 +51,9 @@ font-size:14px;
 }
 
 .options{
-font-size:14px;
+display:flex;
+gap:15px;
+flex-wrap:wrap;
 }
 
 #reader{
@@ -60,12 +62,7 @@ width:100%;
 }
 
 .success{
-background:#2e7d32!important;
-}
-
-.small{
-font-size:12px;
-color:#666;
+background:#2e7d32 !important;
 }
 
 </style>
@@ -88,14 +85,10 @@ Aplikasi e-PDP SMK Semenchu
 Mod Gantian (Pilih Masa Manual)
 </label>
 
-<div id="masaManual" style="display:none">
-
-<label><input type="radio" name="durasi" value="1" checked> 30 min</label>
-<label><input type="radio" name="durasi" value="2"> 60 min</label>
-<label><input type="radio" name="durasi" value="3"> 90 min</label>
-
-<div class="small">Digunakan jika terlupa scan</div>
-
+<div class="options">
+<label><input type="radio" name="durasi" value="1" checked>30 min</label>
+<label><input type="radio" name="durasi" value="2">60 min</label>
+<label><input type="radio" name="durasi" value="3">90 min</label>
 </div>
 
 </div>
@@ -106,160 +99,188 @@ Mod Gantian (Pilih Masa Manual)
 
 <script>
 
-/* =========================
-   SETTINGS
-========================= */
+/* ================= SENARAI GURU KEKAL ================= */
 
-const API_URL =
-"https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
+const SENARAI_GURU = [
 
+"HJ. AMAD BAHRI BIN MARDI",
+"SITI SANISAH BINTI SAMIAN",
+"MOHD JAMIL BIN SALEH @ JAPRI",
+"HUZANA BINTI SARIJO",
+"FATIMAH ZOHORA BINTI NOH",
+"ZURAINI BINTI AHMAD",
+"ANIZA BINTI AHMAD",
+"JOHARI BIN JAMAT",
+"ALINA BINTI RAHMAN",
+"AHMAD FAHIM NAQIUDDIN BIN IBRAHIM",
+"FARIHAH AQILAH BINTI MOHD YAINI",
+"HAAFIDHAH BINTI ABU BAKAR SIDEK",
+"HANANI BINTI MAT HUSIN",
+"HANIDA BINTI SHAABAN",
+"HASLINA BINTI ZAKARIA",
+"HJH JUHANA BINTI JAFFAR",
+"KHADIJAH BINTI M. YUSUF",
+"MASSURA BINTI SIRAT",
+"MOHAMAD AMRAN BIN JASMANI",
+"MOHAMMAD JUNAIDI BIN SUWADI",
+"MOHD FARID BIN DAWAM",
+"MOHD HISHAMUDDIN BIN MD BASAR",
+"MUHAMMAD ALHAKIM BIN MUSTAFA",
+"MUHAMMAD FIKRI BIN ABD RAHMAN",
+"NOOR ADILAH BINTI FAUZI",
+"NOOR AZMIL BIN MISMAN",
+"NOOR FADZILLA ROZIETA BINTI HOSNIN",
+"NOOR NASRIN FARHAH BINTI SURIF",
+"NOORFARRAWATI BINTI MOHD HALIL",
+"NOR HAMIDA BINTI JUSOH",
+"NOREHAN BINTI SUJAICE",
+"NORFAIZAH BINTI ISNIN",
+"NORHAZLIN BINTI MAHAD",
+"NORLIDA BINTI HASHIM",
+"NORLIZA BINTI OTHMAN",
+"NUR NAJIHAH BT MOHD SAH",
+"NUR SHAFIQAH BINTI MOHAMAD",
+"NURADILAH BINTI KOSNAN",
+"NURAINI ABDUL RAZAK",
+"NURELISA FARAHIM BINTI ABDUL HADI",
+"NURFARIZA BINTI MOHAMAD SHAH",
+"NURUL AIN BINTI BAHIR",
+"NURUL ASHIKIN BINTI BAHAROM",
+"NURUL NADHIRAH BINTI AHMAD SHUKRI",
+"NURUL NAZURAH BINTI NORHISAM",
+"NURULHUDA BINTI RAHIM",
+"RAHAYU BINTI SULAIMAN",
+"ROSHALIZA BINTI ROMLI",
+"ROSLI BIN ABU AMIN",
+"ROSLINAH BINTI PARHAN",
+"SAFRY BIN SALLEH",
+"SALINA BINTI KHAMIS",
+"SITI HALINA BINTI JAMHARI",
+"SITI NOR KHAMLEZA BINTI TAMIN",
+"SUZANAH BINTI KASON",
+"SUZILA BINTI ABDULLAH",
+"UMAR FARUQ BIN MOHD ISMAIL"
 
-/* =========================
-   GURU AUTO LOAD
-========================= */
-
-const guruList = [
-"Haafidhah Binti Abu Bakar Sidek",
-"Siti Sanisah Binti Samian",
-"Hj. Amad Bahri Bin Mardi",
-"Mohd Jamil Bin Saleh @ Japri"
 ];
+
+/* ================= LOAD DROPDOWN ================= */
 
 const guruSelect=document.getElementById("guru");
 
-guruList.forEach(n=>{
+guruSelect.innerHTML='<option value="">-- Pilih Nama Guru --</option>';
+
+SENARAI_GURU.forEach(n=>{
 let opt=document.createElement("option");
 opt.value=n;
-opt.textContent=n.toUpperCase();
+opt.textContent=n;
 guruSelect.appendChild(opt);
 });
 
+/* ================= CONFIG ================= */
 
-/* =========================
-   MOD GANTIAN UI
-========================= */
+const API_URL="https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
 
-document.getElementById("gantian")
-.addEventListener("change",e=>{
-document.getElementById("masaManual")
-.style.display=e.target.checked?"block":"none";
-});
-
-
-/* =========================
-   AUTO SLOT
-========================= */
+/* ================= SLOT AUTO ================= */
 
 function autoDetectSlot(){
 
 const now=new Date();
 const total=now.getHours()*60+now.getMinutes();
+const start=7*60+30;
 
-const start=7*60+20; // 7:20 pagi
 let slot=Math.floor((total-start)/30)+1;
 
 if(slot<1)slot=1;
-if(slot>13)slot=13;
+if(slot>15)slot=15;
 
 return slot;
 }
 
+/* ================= SCAN SUCCESS ================= */
 
-/* =========================
-   SCAN SUCCESS
-========================= */
+function onScanSuccess(msg){
 
-function onScanSuccess(qrMessage){
+let jenis="NORMAL";
+let kelas=msg;
+
+if(msg.includes("|")){
+let p=msg.split("|");
+jenis=p[0];
+kelas=p[1];
+}
 
 const guru=guruSelect.value;
 
 if(!guru){
-alert("Sila pilih nama guru");
+alert("Sila pilih nama guru dahulu");
 return;
 }
 
-const gantian=document.getElementById("gantian").checked;
+const bil=document.querySelector('input[name="durasi"]:checked').value;
 
-let bil,slot,jenis="";
-
-if(gantian){
-bil=document.querySelector('input[name="durasi"]:checked').value;
-slot="MANUAL";
-jenis="GANTIAN";
-}else{
-bil=1;
-slot=autoDetectSlot();
-}
+const mod=document.getElementById("gantian").checked
+? "GANTIAN"
+: jenis;
 
 fetch(API_URL,{
 method:"POST",
 body:JSON.stringify({
-kelas:qrMessage,
 guru:guru,
-slot:slot,
+kelas:kelas,
+slot:autoDetectSlot(),
 bil:parseInt(bil),
-jenis:jenis
+jenis:mod
 })
 })
 .then(r=>r.json())
 .then(res=>{
 
 if(res.ok){
-
 navigator.vibrate(200);
-
 document.body.classList.add("success");
-
-setTimeout(()=>{
-document.body.classList.remove("success");
-},500);
-
+setTimeout(()=>document.body.classList.remove("success"),600);
 }
 
 });
 
 }
 
+function onScanError(){}
 
-/* =========================
-   START CAMERA (STABIL)
-========================= */
+/* ================= CAMERA ================= */
 
-let html5QrCode;
+async function startScanner(){
 
-async function startCamera(){
+const scanner=new Html5Qrcode("reader");
 
-const cameras=await Html5Qrcode.getCameras();
+const cams=await Html5Qrcode.getCameras();
 
-if(!cameras.length){
-alert("Kamera tidak dijumpai");
+if(!cams.length){
+alert("Tiada kamera");
 return;
 }
 
-/* auto pilih kamera belakang */
-let back=cameras.find(c=>
+let back=cams.find(c=>
 c.label.toLowerCase().includes("back")||
 c.label.toLowerCase().includes("rear")
 );
 
-const camId=back?back.id:cameras[0].id;
-
-html5QrCode=new Html5Qrcode("reader");
-
-html5QrCode.start(
-camId,
+await scanner.start(
+back?back.id:cams[0].id,
 {
 fps:10,
-qrbox:{width:250,height:250},
-aspectRatio:1.0
+qrbox:(w,h)=>{
+let m=Math.min(w,h);
+return Math.floor(m*0.75);
+}
 },
 onScanSuccess,
-()=>{}
+onScanError
 );
 
 }
 
-document.addEventListener("DOMContentLoaded",startCamera);
+startScanner();
 
 </script>
 
