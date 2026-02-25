@@ -1,75 +1,49 @@
-<!DOCTYPE html><html lang="ms"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Aplikasi e-PDP SMK Semenchu</title>
+<!DOCTYPE html>
+<html lang="ms"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Aplikasi e-PDP SMK Semenchu</title>
 <script src="html5-qrcode.min.js"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box;}
-html,body{height:100%;font-family:Poppins,sans-serif;background:#d9f4e0;overflow:hidden;}
-.container{display:flex;flex-direction:column;height:100%;}
-.header{background:#1b5e20;color:white;text-align:center;padding:12px;font-size:18px;font-weight:bold;}
-.controls{background:white;padding:12px;display:flex;flex-direction:column;gap:10px;}
-select{width:100%;padding:10px;border-radius:6px;border:1px solid #ccc;}
-.options{display:flex;gap:15px;flex-wrap:wrap;font-size:14px;}
-#reader{flex:1;width:100%;}
-.success{background:#2e7d32 !important;transition:.3s;}</style></head>
+<style>body{margin:0;font-family:Poppins, sans-serif;background:#d9f4e0;}
+.header{background:#1b5e20;color:white;text-align:center;padding:12px;font-weight:bold;}
+.controls{background:white;padding:12px;}
+select{width:100%;padding:10px;margin-bottom:10px;}
+#reader{width:100%;height:65vh;}
+.success{background:#2e7d32!important;}</style></head>
 <body>
-<div class="container">
 <div class="header">Aplikasi e-PDP SMK Semenchu</div>
 <div class="controls">
-<select id="guru"><option value="">Memuatkan nama guru...</option></select>
+<select id="guru"><option>Memuatkan nama guru...</option></select>
 <label><input type="checkbox" id="gantian">Mod Gantian (Pilih Masa Manual)</label>
-<div class="options"><label><input type="radio" name="durasi" value="1" checked>30 min</label><label><input type="radio" name="durasi" value="2">60 min</label><label><input type="radio" name="durasi" value="3">90 min</label></div>
+<div id="manualBox" style="display:none;margin-top:8px;"><label><input type="radio" name="durasi" value="1" checked>30 min</label><label><input type="radio" name="durasi" value="2">60 min</label><label><input type="radio" name="durasi" value="3">90 min</label></div>
 </div>
 <div id="reader"></div>
-</div>
 <script>
 /* ================= CONFIG ================= */
 const API_URL ="https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
-/* =========================================== */
-let html5QrCode;let scanningLock=false;
-/* ---------- LOAD NAMA GURU ---------- */
-async function loadGuru(){
-try{const res = await fetch(API_URL+"?mode=guru");const data = await res.json();
+/* ================= LOAD GURU ================= */
+async function loadGuru(){const res = await fetch(API_URL+"?mode=guru");const list = await res.json();
 const select=document.getElementById("guru");select.innerHTML='<option value="">-- Pilih Nama Guru --</option>';
-data.forEach(nama=>{const opt=document.createElement("option");opt.value=nama;opt.textContent=nama;select.appendChild(opt);});
-}catch(e){console.log("Gagal load guru",e);}
+list.forEach(n=>{let opt=document.createElement("option");opt.value=n;opt.textContent=n;select.appendChild(opt);});}
+loadGuru();
+/* ================= UI ================= */
+document.getElementById("gantian").onchange=()=>{document.getElementById("manualBox").style.display=document.getElementById("gantian").checked?"block":"none";};
+/* ================= SLOT AUTO ================= */
+function autoSlot(){const now=new Date();const start=7*60+30;const total=now.getHours()*60+now.getMinutes();let slot=Math.floor((total-start)/30)+1;if(slot<1)slot=1;if(slot>15)slot=15;return slot;}
+/* ================= QR SCANNER ================= */
+let scanner;let scanLock=false;
+function startScanner(){
+scanner=new Html5Qrcode("reader");
+scanner.start({ facingMode:"environment" },{fps:10,qrbox:{width:250,height:250}},onScanSuccess);
 }
-/* ---------- AUTO SLOT ---------- */
-function autoDetectSlot(){
-const now=new Date();const totalMin=now.getHours()*60+now.getMinutes();const start=7*60+30;
-let slot=Math.floor((totalMin-start)/30)+1;
-if(slot<1) slot=1;if(slot>15) slot=15;
-return slot;}
-/* ---------- SCAN SUCCESS ---------- */
-async function onScanSuccess(qrMessage){
-if(scanningLock) return;scanningLock=true;
-console.log("SCAN:",qrMessage);
-/* parse QR */let jenis="NORMAL";let kelas=qrMessage;
-if(qrMessage.includes("|")){const p=qrMessage.split("|");jenis=p[0];kelas=p[1];}
-/* guru */const guru=document.getElementById("guru").value;
-if(!guru){alert("Sila pilih nama guru dahulu");scanningLock=false;return;}
-/* durasi */const bil=parseInt(document.querySelector('input[name="durasi"]:checked').value);
-/* mod gantian */const modManual=document.getElementById("gantian").checked? "GANTIAN": jenis;
-const data={guru:guru,kelas:kelas,slot:autoDetectSlot(),bil:bil,jenis:modManual};
-/* pause scan */await html5QrCode.pause(true);
-/* hantar data */fetch(API_URL,{method:"POST",body:JSON.stringify(data)}).then(r=>r.json()).then(res=>{
-if(res.ok){
-if(navigator.vibrate){navigator.vibrate([200,100,200]);}
-document.body.classList.add("success");
-setTimeout(()=>{document.body.classList.remove("success");},700);
+async function onScanSuccess(text){
+if(scanLock) return;scanLock=true;
+const guru=document.getElementById("guru").value;if(!guru){alert("Sila pilih nama guru dahulu");scanLock=false;return;}
+let jenis="";if(text.startsWith("RELIF|")){jenis="RELIF";text=text.replace("RELIF|","");}
+const bil=document.querySelector('input[name="durasi"]:checked').value;
+const data={guru:guru,kelas:text,slot:autoSlot(),bil:parseInt(bil),jenis:jenis};
+await fetch(API_URL,{method:"POST",body:JSON.stringify(data)});
+navigator.vibrate?.(200);
+document.body.classList.add("success");setTimeout(()=>{document.body.classList.remove("success");scanLock=false;},1500);
 }
-}).finally(()=>{
-setTimeout(()=>{html5QrCode.resume();scanningLock=false;},2000);
-});
-}
-function onScanError(){}
-/* ---------- START CAMERA ---------- */
-async function startCamera(){
-const cameras=await Html5Qrcode.getCameras();
-if(!cameras.length){alert("Tiada kamera dijumpai");return;}
-/* auto pilih kamera belakang */let back=cameras.find(c=>c.label.toLowerCase().includes("back")||c.label.toLowerCase().includes("rear"));
-const cameraId=back?back.id:cameras[0].id;
-html5QrCode=new Html5Qrcode("reader");
-html5QrCode.start(cameraId,{fps:10,qrbox:(w,h)=>{let size=Math.min(w,h);return Math.floor(size*0.75);}},onScanSuccess,onScanError);
-}
-/* ---------- INIT ---------- */
-document.addEventListener("DOMContentLoaded",async ()=>{await loadGuru();startCamera();});
+/* ================= START ================= */
+startScanner();
 </script>
 </body></html>
