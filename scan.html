@@ -5,52 +5,64 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Aplikasi e-PDP SMK Semenchu</title>
 
-<script src="./html5-qrcode.min.js"></script>
+<script src="html5-qrcode.min.js"></script>
 
 <style>
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
 body{
-margin:0;
-font-family:Arial;
+font-family:Poppins,sans-serif;
 background:#d9f4e0;
+height:100vh;
+display:flex;
+flex-direction:column;
 }
 
 .header{
 background:#1b5e20;
 color:white;
 text-align:center;
-padding:12px;
+padding:14px;
 font-weight:bold;
+font-size:18px;
 }
 
 .controls{
 background:white;
-padding:10px;
+padding:12px;
+display:flex;
+flex-direction:column;
+gap:10px;
 }
 
 select{
-width:100%;
 padding:10px;
 font-size:15px;
-margin-bottom:8px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+.options{
+display:flex;
+gap:12px;
+align-items:center;
 }
 
 #reader{
-height:65vh;
+flex:1;
+width:100%;
 }
 
-.successBox{
-position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-background:#2e7d32;
-color:white;
-padding:18px;
-border-radius:10px;
-font-size:18px;
-display:none;
-z-index:999;
+.successFlash{
+animation:flash 0.4s;
 }
+
+@keyframes flash{
+0%{background:#2e7d32;}
+100%{background:#d9f4e0;}
+}
+
 </style>
 </head>
 
@@ -63,7 +75,7 @@ Aplikasi e-PDP SMK Semenchu
 <div class="controls">
 
 <select id="guru">
-<option value="">Memuatkan nama guru...</option>
+<option value="">Loading nama guru...</option>
 </select>
 
 <label>
@@ -71,38 +83,31 @@ Aplikasi e-PDP SMK Semenchu
 Mod Gantian (Pilih Masa Manual)
 </label>
 
-<br><br>
-
-<label><input type="radio" name="bil" value="1" checked>30 min</label>
-<label><input type="radio" name="bil" value="2">60 min</label>
-<label><input type="radio" name="bil" value="3">90 min</label>
+<div class="options">
+<label><input type="radio" name="durasi" value="1" checked>30 min</label>
+<label><input type="radio" name="durasi" value="2">60 min</label>
+<label><input type="radio" name="durasi" value="3">90 min</label>
+</div>
 
 </div>
 
 <div id="reader"></div>
 
-<div id="popup" class="successBox">
-✅ Berjaya Scan
-</div>
-
 <script>
 
-/* =========================
-   URL GOOGLE SCRIPT
-========================= */
+/* ================= CONFIG ================= */
 
-const API_URL =
-"https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
 
+let scanner;
+let scanLock=false;
 
-/* =========================
-   LOAD NAMA GURU DARI SHEET
-========================= */
+/* ================= LOAD GURU ================= */
 
-fetch(API_URL+"?mode=guru")
+fetch(API_URL+"?guru=1")
 .then(r=>r.json())
 .then(list=>{
-let select=document.getElementById("guru");
+const select=document.getElementById("guru");
 select.innerHTML='<option value="">-- Pilih Nama Guru --</option>';
 
 list.forEach(n=>{
@@ -113,136 +118,96 @@ select.appendChild(opt);
 });
 });
 
-
-/* =========================
-   SCANNER ENGINE
-========================= */
-
-let html5QrCode;
-let lastScan="";
-let scanLock=false;
-
-function showPopup(){
-let p=document.getElementById("popup");
-p.style.display="block";
-setTimeout(()=>p.style.display="none",1200);
-}
+/* ================= AUTO SLOT ================= */
 
 function autoSlot(){
 
-let now=new Date();
-let start=7*60+20;
-let current=now.getHours()*60+now.getMinutes();
+const now=new Date();
+const start=7*60+20;
+const min=now.getHours()*60+now.getMinutes();
 
-let slot=Math.floor((current-start)/30)+1;
+let slot=Math.floor((min-start)/30)+1;
 
-if(slot<1) slot=1;
-if(slot>13) slot=13;
+if(slot<1)slot=1;
+if(slot>13)slot=13;
 
 return slot;
 }
 
+/* ================= SCAN SUCCESS ================= */
 
-/* ===== SUCCESS SCAN ===== */
-
-function onScanSuccess(decodedText){
+function onScanSuccess(text){
 
 if(scanLock) return;
 scanLock=true;
 
-if(decodedText===lastScan){
-scanLock=false;
-return;
-}
-
-lastScan=decodedText;
-
-/* vibration */
-if(navigator.vibrate) navigator.vibrate(200);
-
-showPopup();
-
-/* ================= DATA ================= */
-
-let guru=document.getElementById("guru").value;
+const guru=document.getElementById("guru").value;
 if(!guru){
 alert("Sila pilih nama guru dahulu");
 scanLock=false;
 return;
 }
 
-let bil=document.querySelector('input[name="bil"]:checked').value;
-let gantian=document.getElementById("gantian").checked?"GANTIAN":"";
+let kelas=text;
+let jenis="";
 
-let kelas=decodedText;
+if(text.startsWith("RELIF|")){
+jenis="RELIF";
+kelas=text.replace("RELIF|","");
+}
 
-let slot=document.getElementById("gantian").checked
-? ""
-: autoSlot();
+const bil=document.querySelector('input[name="durasi"]:checked').value;
 
-/* SEND DATA */
+const data={
+guru:guru,
+kelas:kelas,
+slot:autoSlot(),
+bil:parseInt(bil),
+jenis:jenis
+};
 
 fetch(API_URL,{
 method:"POST",
-body:JSON.stringify({
-guru:guru,
-kelas:kelas,
-slot:slot,
-bil:bil,
-jenis:gantian
+body:JSON.stringify(data)
 })
+.then(r=>r.json())
+.then(res=>{
+
+if(res.ok){
+
+if(navigator.vibrate) navigator.vibrate(200);
+
+alert("✅ Berjaya Scan\n"+kelas);
+
+document.body.classList.add("successFlash");
+setTimeout(()=>document.body.classList.remove("successFlash"),400);
+
+}
+
+setTimeout(()=>scanLock=false,2000);
+
 });
 
-setTimeout(()=>{
-scanLock=false;
-},2000);
-
 }
 
+/* ================= START CAMERA ================= */
 
-/* WAJIB ADA — kalau tak scan tak trigger */
-function onScanError(err){}
+function startScanner(){
 
+scanner=new Html5Qrcode("reader");
 
-/* =========================
-   START CAMERA
-========================= */
-
-async function startScanner(){
-
-const cameras=await Html5Qrcode.getCameras();
-
-if(!cameras.length){
-alert("Tiada kamera dijumpai");
-return;
-}
-
-/* pilih kamera belakang */
-let back=cameras.find(c=>
-c.label.toLowerCase().includes("back")||
-c.label.toLowerCase().includes("rear")
-);
-
-let camId=back?back.id:cameras[0].id;
-
-html5QrCode=new Html5Qrcode("reader");
-
-html5QrCode.start(
-camId,
+scanner.start(
+{facingMode:"environment"},
 {
 fps:10,
-qrbox:(w,h)=>{
-let min=Math.min(w,h);
-return Math.floor(min*0.75);
-}
+qrbox:{width:260,height:260}
 },
-onScanSuccess,
-onScanError
+onScanSuccess
 );
 
 }
 
-startScanner();
+document.addEventListener("DOMContentLoaded",startScanner);
 
 </script>
 
