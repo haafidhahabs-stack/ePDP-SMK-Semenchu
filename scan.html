@@ -1,66 +1,285 @@
-<!DOCTYPE html><html lang="ms"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Aplikasi e-PDP SMK Semenchu</title>
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Aplikasi e-PDP SMK Semenchu</title>
+
 <script src="html5-qrcode.min.js"></script>
+
 <style>
-body{margin:0;font-family:Poppins, sans-serif;background:#d9f4e0;}
-.header{background:#1b5e20;color:white;text-align:center;padding:14px;font-size:18px;font-weight:bold;}
-.controls{background:white;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,.1);}
-select{width:100%;padding:10px;margin-bottom:10px;border-radius:6px;border:1px solid #ccc;font-size:14px;}
-.options{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
-#reader{width:100%;height:65vh;}
-.success{background:#2e7d32!important;}
-/* ===== NOTIFICATION ===== */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1b5e20;color:white;padding:12px 22px;border-radius:10px;font-weight:bold;opacity:0;transition:.4s;z-index:9999;}
-.toast.show{opacity:1;}
-</style></head>
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+font-family:Poppins,sans-serif;
+background:#d9f4e0;
+height:100vh;
+display:flex;
+flex-direction:column;
+}
+
+.header{
+background:#1b5e20;
+color:white;
+text-align:center;
+padding:14px;
+font-weight:bold;
+font-size:18px;
+}
+
+.controls{
+background:white;
+padding:12px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+select{
+padding:10px;
+border-radius:8px;
+border:1px solid #ccc;
+font-size:15px;
+}
+
+.options{
+display:flex;
+align-items:center;
+gap:12px;
+flex-wrap:wrap;
+}
+
+#reader{
+flex:1;
+width:100%;
+}
+
+.success{
+background:#2e7d32!important;
+}
+
+.toast{
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+background:#2e7d32;
+color:white;
+padding:12px 18px;
+border-radius:8px;
+display:none;
+z-index:999;
+font-weight:bold;
+}
+
+</style>
+</head>
+
 <body>
-<div class="header">Aplikasi e-PDP SMK Semenchu</div>
+
+<div class="header">
+Aplikasi e-PDP SMK Semenchu
+</div>
+
 <div class="controls">
-<select id="guru"><option>Memuatkan nama guru...</option></select>
+
+<select id="guru">
+<option value="">Loading nama guru...</option>
+</select>
+
+<label>
+<input type="checkbox" id="gantian">
+Mod Gantian (Pilih Masa Manual)
+</label>
+
 <div class="options">
-<label><input type="checkbox" id="gantian">Mod Gantian</label>
-<div><label><input type="radio" name="durasi" value="1" checked>30m</label><label><input type="radio" name="durasi" value="2">60m</label><label><input type="radio" name="durasi" value="3">90m</label></div>
+<label><input type="radio" name="durasi" value="1" checked>30 min</label>
+<label><input type="radio" name="durasi" value="2">60 min</label>
+<label><input type="radio" name="durasi" value="3">90 min</label>
 </div>
+
 </div>
+
 <div id="reader"></div>
-<div id="toast" class="toast"> Berjaya Scan</div>
+
+<div id="toast" class="toast"></div>
+
 <script>
+
 /* ================= CONFIG ================= */
-const API_URL ="https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
-/* ================= LOAD NAMA GURU ================= */
-async function loadGuru(){
-const res = await fetch(API_URL+"?mode=guru");const list = await res.json();
-const select=document.getElementById("guru");select.innerHTML='<option value="">-- Pilih Nama Guru --</option>';
-list.forEach(n=>{let opt=document.createElement("option");opt.value=n;opt.textContent=n;select.appendChild(opt);});
+
+const API_URL="https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
+
+let html5QrCode;
+let scanLock=false;
+
+/* ================= TOAST ================= */
+
+function showToast(msg){
+const t=document.getElementById("toast");
+t.innerText=msg;
+t.style.display="block";
+
+setTimeout(()=>t.style.display="none",2000);
 }
-loadGuru();
-/* ================= NOTIFICATION ================= */
-function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");
-setTimeout(()=>{t.classList.remove("show");},2000);}
+
 /* ================= AUTO SLOT ================= */
+
 function autoSlot(){
-const now=new Date();const start=7*60+30; // 7:30 pagiconst total=now.getHours()*60+now.getMinutes();
+
+const now=new Date();
+const total=now.getHours()*60+now.getMinutes();
+const start=7*60+20;
+
 let slot=Math.floor((total-start)/30)+1;
-if(slot<1)slot=1;if(slot>15)slot=15;
-return slot;}
-/* ================= QR SCANNER ================= */
-let scanner;let scanLock=false;
-function startScanner(){
-scanner=new Html5Qrcode("reader");
-scanner.start({ facingMode:"environment" },{fps:10,qrbox:{width:260,height:260}},onScanSuccess);
+
+if(slot<1)slot=1;
+if(slot>13)slot=13;
+
+return slot;
 }
-async function onScanSuccess(text){
-if(scanLock) return;scanLock=true;
+
+/* ================= LOAD GURU ================= */
+
+async function loadGuru(){
+
+try{
+const res=await fetch(API_URL+"?mode=guru");
+const data=await res.json();
+
+const select=document.getElementById("guru");
+select.innerHTML='<option value="">-- Pilih Nama Guru --</option>';
+
+data.forEach(n=>{
+let opt=document.createElement("option");
+opt.value=n;
+opt.textContent=n;
+select.appendChild(opt);
+});
+
+}catch(e){
+alert("Gagal load nama guru");
+}
+}
+
+/* ================= SCAN SUCCESS ================= */
+
+async function onScanSuccess(qrText){
+
+if(scanLock) return;
+scanLock=true;
+
 const guru=document.getElementById("guru").value;
-if(!guru){alert("Sila pilih nama guru dahulu");scanLock=false;return;}
-/* detect RELIF QR */let jenis="";if(text.startsWith("RELIF|")){jenis="RELIF";text=text.replace("RELIF|","");}
-const bil=document.querySelector('input[name="durasi"]:checked').value;
-const data={guru:guru,kelas:text,slot:autoSlot(),bil:parseInt(bil),jenis:jenis};
-await fetch(API_URL,{method:"POST",body:JSON.stringify(data)});
-/* FEEDBACK USER */navigator.vibrate?.(200);showToast(" Berjaya Scan");
-document.body.classList.add("success");
-setTimeout(()=>{document.body.classList.remove("success");scanLock=false;},1500);
+
+if(!guru){
+alert("Sila pilih nama guru dahulu");
+scanLock=false;
+return;
 }
-/* ================= START ================= */
+
+let kelas="";
+let jenis="";
+
+/* FORMAT QR */
+
+if(qrText.startsWith("RELIF|")){
+jenis="RELIF";
+kelas=qrText.replace("RELIF|","");
+}
+else if(qrText.startsWith("CLASS|")){
+kelas=qrText.replace("CLASS|","");
+}
+else{
+kelas=qrText;
+}
+
+const bil=document.querySelector(
+'input[name="durasi"]:checked'
+).value;
+
+const data={
+guru:guru,
+kelas:kelas,
+slot:autoSlot(),
+bil:Number(bil),
+jenis:jenis
+};
+
+try{
+
+const res=await fetch(API_URL,{
+method:"POST",
+body:JSON.stringify(data)
+});
+
+await res.json();
+
+/* SUCCESS EFFECT */
+
+navigator.vibrate?.(200);
+showToast("✅ Berjaya Scan");
+
+document.body.classList.add("success");
+
+setTimeout(()=>{
+document.body.classList.remove("success");
+scanLock=false;
+},1500);
+
+}catch(err){
+
+alert("Gagal hantar data");
+scanLock=false;
+}
+}
+
+/* ================= START CAMERA ================= */
+
+async function startScanner(){
+
+html5QrCode=new Html5Qrcode("reader");
+
+const cameras=await Html5Qrcode.getCameras();
+
+if(!cameras.length){
+alert("Tiada kamera");
+return;
+}
+
+/* pilih kamera belakang */
+let back=cameras.find(c=>
+c.label.toLowerCase().includes("back")
+);
+
+let camId=back?back.id:cameras[0].id;
+
+html5QrCode.start(
+camId,
+{
+fps:10,
+qrbox:(w,h)=>{
+let min=Math.min(w,h);
+return Math.floor(min*0.75);
+}
+},
+onScanSuccess
+);
+
+}
+
+/* ================= INIT ================= */
+
+document.addEventListener("DOMContentLoaded",async()=>{
+
+await loadGuru();
 startScanner();
+
+});
+
 </script>
-</body></html>
+
+</body>
+</html>
