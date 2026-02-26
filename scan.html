@@ -1,80 +1,56 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
 <title>Aplikasi e-PDP SMK Semenchu</title>
 
 <script src="html5-qrcode.min.js"></script>
 
 <style>
-
-*{margin:0;padding:0;box-sizing:border-box;}
-
 body{
-font-family:Poppins,sans-serif;
+margin:0;
+font-family:Arial;
 background:#d9f4e0;
-height:100vh;
-display:flex;
-flex-direction:column;
 }
 
 .header{
 background:#1b5e20;
 color:white;
 text-align:center;
-padding:14px;
+padding:12px;
 font-weight:bold;
-font-size:18px;
 }
 
 .controls{
 background:white;
-padding:12px;
-display:flex;
-flex-direction:column;
-gap:10px;
+padding:10px;
 }
 
 select{
+width:100%;
 padding:10px;
-border-radius:8px;
-border:1px solid #ccc;
 font-size:15px;
-}
-
-.options{
-display:flex;
-align-items:center;
-gap:12px;
-flex-wrap:wrap;
+margin-bottom:8px;
 }
 
 #reader{
-flex:1;
-width:100%;
+height:65vh;
 }
 
-.success{
-background:#2e7d32!important;
-}
-
-.toast{
+.successBox{
 position:fixed;
-bottom:20px;
+top:50%;
 left:50%;
-transform:translateX(-50%);
+transform:translate(-50%,-50%);
 background:#2e7d32;
 color:white;
-padding:12px 18px;
-border-radius:8px;
+padding:18px;
+border-radius:10px;
+font-size:18px;
 display:none;
 z-index:999;
-font-weight:bold;
 }
-
 </style>
 </head>
 
@@ -87,7 +63,7 @@ Aplikasi e-PDP SMK Semenchu
 <div class="controls">
 
 <select id="guru">
-<option value="">Loading nama guru...</option>
+<option value="">Memuatkan nama guru...</option>
 </select>
 
 <label>
@@ -95,166 +71,161 @@ Aplikasi e-PDP SMK Semenchu
 Mod Gantian (Pilih Masa Manual)
 </label>
 
-<div class="options">
-<label><input type="radio" name="durasi" value="1" checked>30 min</label>
-<label><input type="radio" name="durasi" value="2">60 min</label>
-<label><input type="radio" name="durasi" value="3">90 min</label>
-</div>
+<br><br>
+
+<label><input type="radio" name="bil" value="1" checked>30 min</label>
+<label><input type="radio" name="bil" value="2">60 min</label>
+<label><input type="radio" name="bil" value="3">90 min</label>
 
 </div>
 
 <div id="reader"></div>
 
-<div id="toast" class="toast"></div>
+<div id="popup" class="successBox">
+✅ Berjaya Scan
+</div>
 
 <script>
 
-/* ================= CONFIG ================= */
+/* =========================
+   URL GOOGLE SCRIPT
+========================= */
 
-const API_URL="https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
+const API_URL =
+"https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
 
-let html5QrCode;
-let scanLock=false;
 
-/* ================= TOAST ================= */
+/* =========================
+   LOAD NAMA GURU DARI SHEET
+========================= */
 
-function showToast(msg){
-const t=document.getElementById("toast");
-t.innerText=msg;
-t.style.display="block";
-
-setTimeout(()=>t.style.display="none",2000);
-}
-
-/* ================= AUTO SLOT ================= */
-
-function autoSlot(){
-
-const now=new Date();
-const total=now.getHours()*60+now.getMinutes();
-const start=7*60+20;
-
-let slot=Math.floor((total-start)/30)+1;
-
-if(slot<1)slot=1;
-if(slot>13)slot=13;
-
-return slot;
-}
-
-/* ================= LOAD GURU ================= */
-
-async function loadGuru(){
-
-try{
-const res=await fetch(API_URL+"?mode=guru");
-const data=await res.json();
-
-const select=document.getElementById("guru");
+fetch(API_URL+"?mode=guru")
+.then(r=>r.json())
+.then(list=>{
+let select=document.getElementById("guru");
 select.innerHTML='<option value="">-- Pilih Nama Guru --</option>';
 
-data.forEach(n=>{
+list.forEach(n=>{
 let opt=document.createElement("option");
 opt.value=n;
 opt.textContent=n;
 select.appendChild(opt);
 });
+});
 
-}catch(e){
-alert("Gagal load nama guru");
+
+/* =========================
+   SCANNER ENGINE
+========================= */
+
+let html5QrCode;
+let lastScan="";
+let scanLock=false;
+
+function showPopup(){
+let p=document.getElementById("popup");
+p.style.display="block";
+setTimeout(()=>p.style.display="none",1200);
 }
+
+function autoSlot(){
+
+let now=new Date();
+let start=7*60+20;
+let current=now.getHours()*60+now.getMinutes();
+
+let slot=Math.floor((current-start)/30)+1;
+
+if(slot<1) slot=1;
+if(slot>13) slot=13;
+
+return slot;
 }
 
-/* ================= SCAN SUCCESS ================= */
 
-async function onScanSuccess(qrText){
+/* ===== SUCCESS SCAN ===== */
+
+function onScanSuccess(decodedText){
 
 if(scanLock) return;
 scanLock=true;
 
-const guru=document.getElementById("guru").value;
+if(decodedText===lastScan){
+scanLock=false;
+return;
+}
 
+lastScan=decodedText;
+
+/* vibration */
+if(navigator.vibrate) navigator.vibrate(200);
+
+showPopup();
+
+/* ================= DATA ================= */
+
+let guru=document.getElementById("guru").value;
 if(!guru){
 alert("Sila pilih nama guru dahulu");
 scanLock=false;
 return;
 }
 
-let kelas="";
-let jenis="";
+let bil=document.querySelector('input[name="bil"]:checked').value;
+let gantian=document.getElementById("gantian").checked?"GANTIAN":"";
 
-/* FORMAT QR */
+let kelas=decodedText;
 
-if(qrText.startsWith("RELIF|")){
-jenis="RELIF";
-kelas=qrText.replace("RELIF|","");
-}
-else if(qrText.startsWith("CLASS|")){
-kelas=qrText.replace("CLASS|","");
-}
-else{
-kelas=qrText;
-}
+let slot=document.getElementById("gantian").checked
+? ""
+: autoSlot();
 
-const bil=document.querySelector(
-'input[name="durasi"]:checked'
-).value;
+/* SEND DATA */
 
-const data={
+fetch(API_URL,{
+method:"POST",
+body:JSON.stringify({
 guru:guru,
 kelas:kelas,
-slot:autoSlot(),
-bil:Number(bil),
-jenis:jenis
-};
-
-try{
-
-const res=await fetch(API_URL,{
-method:"POST",
-body:JSON.stringify(data)
+slot:slot,
+bil:bil,
+jenis:gantian
+})
 });
 
-await res.json();
-
-/* SUCCESS EFFECT */
-
-navigator.vibrate?.(200);
-showToast("✅ Berjaya Scan");
-
-document.body.classList.add("success");
-
 setTimeout(()=>{
-document.body.classList.remove("success");
 scanLock=false;
-},1500);
+},2000);
 
-}catch(err){
-
-alert("Gagal hantar data");
-scanLock=false;
-}
 }
 
-/* ================= START CAMERA ================= */
+
+/* WAJIB ADA — kalau tak scan tak trigger */
+function onScanError(err){}
+
+
+/* =========================
+   START CAMERA
+========================= */
 
 async function startScanner(){
-
-html5QrCode=new Html5Qrcode("reader");
 
 const cameras=await Html5Qrcode.getCameras();
 
 if(!cameras.length){
-alert("Tiada kamera");
+alert("Tiada kamera dijumpai");
 return;
 }
 
 /* pilih kamera belakang */
 let back=cameras.find(c=>
-c.label.toLowerCase().includes("back")
+c.label.toLowerCase().includes("back")||
+c.label.toLowerCase().includes("rear")
 );
 
 let camId=back?back.id:cameras[0].id;
+
+html5QrCode=new Html5Qrcode("reader");
 
 html5QrCode.start(
 camId,
@@ -265,19 +236,13 @@ let min=Math.min(w,h);
 return Math.floor(min*0.75);
 }
 },
-onScanSuccess
+onScanSuccess,
+onScanError
 );
 
 }
 
-/* ================= INIT ================= */
-
-document.addEventListener("DOMContentLoaded",async()=>{
-
-await loadGuru();
 startScanner();
-
-});
 
 </script>
 
