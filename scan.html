@@ -76,9 +76,7 @@ Mod Gantian (Pilih Masa Manual)
 <div class="radio">
 
 <label><input type="radio" name="masa" value="30" checked>30 min</label>
-
 <label><input type="radio" name="masa" value="60">60 min</label>
-
 <label><input type="radio" name="masa" value="90">90 min</label>
 
 </div>
@@ -93,8 +91,9 @@ Berjaya Scan ✅
 
 <script>
 
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
+let lastScan="";
 
 
 // ================= LOAD NAMA GURU =================
@@ -103,15 +102,15 @@ async function loadGuru(){
 
 try{
 
-const response = await fetch(SCRIPT_URL + "?mode=guru");
+const response=await fetch(SCRIPT_URL+"?mode=guru");
 
-const data = await response.json();
+const data=await response.json();
 
-const select = document.getElementById("namaGuru");
+const select=document.getElementById("namaGuru");
 
 select.innerHTML='<option value="">-- Pilih Nama Guru --</option>';
 
-const list = data.guru;
+const list=data.guru;
 
 if(!Array.isArray(list)){
 
@@ -151,6 +150,13 @@ window.onload=loadGuru;
 
 function onScanSuccess(decodedText){
 
+if(decodedText===lastScan){
+return;
+}
+
+lastScan=decodedText;
+
+
 const guru=document.getElementById("namaGuru").value;
 
 if(!guru){
@@ -173,31 +179,23 @@ kelas=decodedText.replace("RELIF|","");
 
 }
 
-
 const masa=document.querySelector('input[name="masa"]:checked').value;
 
 const bil=masa/30;
 
-
 const payload={
 
 guru:guru,
-
 kelas:kelas,
-
 slot:masa,
-
 bil:bil,
-
 jenis:jenis
 
 };
 
-
 fetch(SCRIPT_URL,{
 
 method:"POST",
-
 body:JSON.stringify(payload)
 
 })
@@ -209,15 +207,11 @@ body:JSON.stringify(payload)
 document.getElementById("notif").style.display="block";
 
 if(navigator.vibrate){
-
 navigator.vibrate(200);
-
 }
 
 setTimeout(function(){
-
 document.getElementById("notif").style.display="none";
-
 },2000);
 
 })
@@ -230,31 +224,20 @@ document.getElementById("notif").style.display="none";
 
 // ================= START CAMERA =================
 
-const html5QrCode = new Html5Qrcode("reader");
-
-Html5Qrcode.getCameras().then(devices=>{
-
-if(devices && devices.length){
+const html5QrCode=new Html5Qrcode("reader");
 
 html5QrCode.start(
 
-devices[0].id,
+{ facingMode:"environment" },
 
 {
-
 fps:10,
-
 qrbox:250
-
 },
 
 onScanSuccess
 
 );
-
-}
-
-});
 
 </script>
 
