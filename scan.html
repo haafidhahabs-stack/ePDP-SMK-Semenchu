@@ -167,9 +167,11 @@ return;
 
 }
 
-let kelas=decodedText;
+let part=decodedText.split("|");
 
-let jenis="";
+let jenis=parts[0];
+let kelas=parts[1];
+let slot=parts[2];
 
 if(decodedText.includes("RELIF")){
 
@@ -187,7 +189,7 @@ const payload={
 
 guru:guru,
 kelas:kelas,
-slot:masa,
+slot:slot,
 bil:bil,
 jenis:jenis
 
