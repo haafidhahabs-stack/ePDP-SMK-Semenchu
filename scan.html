@@ -80,6 +80,12 @@ Aplikasi e-PDP SMK Semenchu
 Mod Gantian (Pilih Masa Manual)
 </label>
 
+<div id="slotManual" style="display:none">
+
+<select id="slotSelect"></select>
+
+</div>
+
 <div class="radio">
 
 <label><input type="radio" name="masa" value="1" checked>30 min</label>
@@ -101,26 +107,29 @@ Mod Gantian (Pilih Masa Manual)
 const SCRIPT_URL="https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
 
 let lastScan="";
-let lastScanTime=0;
+let scanLock=false;
 let lastScanID="";
+let kelasSemasa="";
 
 
-// ================= LOAD GURU =================
+
+// ================= LOAD NAMA GURU =================
 
 async function loadGuru(){
 
-const response=await fetch(SCRIPT_URL+"?mode=guru");
-const data=await response.json();
+const res=await fetch(SCRIPT_URL+"?mode=guru");
+const data=await res.json();
 
 const select=document.getElementById("namaGuru");
 
 select.innerHTML='<option value="">-- Pilih Nama Guru --</option>';
 
-data.guru.forEach(function(nama){
+data.guru.forEach(function(n){
 
 const option=document.createElement("option");
-option.value=nama;
-option.textContent=nama;
+
+option.value=n;
+option.textContent=n;
 
 select.appendChild(option);
 
@@ -129,6 +138,7 @@ select.appendChild(option);
 }
 
 window.onload=loadGuru;
+
 
 
 // ================= SLOT PERDANA =================
@@ -153,6 +163,7 @@ if(slot>15) slot=15;
 return slot;
 
 }
+
 
 
 // ================= SLOT PPKI =================
@@ -181,9 +192,7 @@ let t=jadual[i].split(":");
 let min=parseInt(t[0])*60+parseInt(t[1]);
 
 if(current>=min){
-
 slot=i+1;
-
 }
 
 }
@@ -193,19 +202,103 @@ return slot;
 }
 
 
+
+// ================= SLOT MANUAL =================
+
+function loadSlotManual(){
+
+let list=[];
+
+if(kelasSemasa.includes("PPKI")){
+
+list=[
+
+"7.20 - 7.50",
+"7.50 - 8.20",
+"8.20 - 8.50",
+"8.50 - 9.20",
+"9.20 - 9.50",
+"9.50 - 10.20",
+"10.20 - 10.50",
+"10.50 - 11.20",
+"11.20 - 11.50",
+"11.50 - 12.20",
+"12.20 - 12.50",
+"12.50 - 1.20",
+"1.20 - 1.50",
+"1.50 - 2.20"
+
+];
+
+}else{
+
+list=[
+
+"7.30 - 8.00",
+"8.00 - 8.30",
+"8.30 - 9.00",
+"9.00 - 9.30",
+"9.30 - 10.00",
+"10.00 - 10.30",
+"10.30 - 11.00",
+"11.00 - 11.30",
+"11.30 - 12.00",
+"12.00 - 12.30",
+"12.30 - 1.00",
+"1.00 - 1.30",
+"1.30 - 2.00",
+"2.00 - 2.30",
+"2.30 - 3.00"
+
+];
+
+}
+
+const select=document.getElementById("slotSelect");
+
+select.innerHTML="";
+
+list.forEach(function(masa,i){
+
+let opt=document.createElement("option");
+
+opt.value=i+1;
+opt.textContent=masa;
+
+select.appendChild(opt);
+
+});
+
+}
+
+
+
+// ================= MOD GANTIAN =================
+
+document.getElementById("modGantian").addEventListener("change",function(){
+
+if(this.checked){
+
+document.getElementById("slotManual").style.display="block";
+loadSlotManual();
+
+}else{
+
+document.getElementById("slotManual").style.display="none";
+
+}
+
+});
+
+
+
 // ================= SCAN SUCCESS =================
 
 function onScanSuccess(decodedText){
 
-let now=Date.now();
+if(scanLock) return;
 
-if(decodedText===lastScan && (now-lastScanTime)<3000){
-return;
-}
-
-lastScan=decodedText;
-lastScanTime=now;
-
+scanLock=true;
 
 const guru=document.getElementById("namaGuru").value;
 
@@ -213,10 +306,11 @@ if(!guru){
 
 alert("Sila pilih nama guru dahulu");
 
+scanLock=false;
+
 return;
 
 }
-
 
 let kelas=decodedText;
 let jenis="";
@@ -228,24 +322,25 @@ kelas=decodedText.replace("RELIF|","");
 
 }
 
-
-// detect PPKI
+kelasSemasa=kelas;
 
 let slot=0;
 
-if(kelas.includes("PPKI")){
+if(document.getElementById("modGantian").checked){
 
-slot=getSlotPPKI();
+slot=parseInt(document.getElementById("slotSelect").value);
 
 }else{
 
+if(kelas.includes("PPKI")){
+slot=getSlotPPKI();
+}else{
 slot=getSlotPerdana();
+}
 
 }
 
-
 let bil=parseInt(document.querySelector('input[name="masa"]:checked').value);
-
 
 const payload={
 
@@ -257,7 +352,6 @@ jenis:jenis
 
 };
 
-
 fetch(SCRIPT_URL,{
 
 method:"POST",
@@ -267,17 +361,7 @@ body:JSON.stringify(payload)
 .then(res=>res.json())
 .then(data=>{
 
-
-if(data.conflict){
-
-alert("⚠ Konflik\nGuru "+data.guru+" telah scan untuk kelas "+kelas);
-return;
-
-}
-
-
 lastScanID=data.id;
-
 
 document.getElementById("notif").innerHTML=
 
@@ -286,28 +370,26 @@ document.getElementById("notif").innerHTML=
 "Kelas : "+kelas+"<br>"+
 "Slot : "+slot;
 
-
 document.getElementById("notif").style.display="block";
 
 document.getElementById("padamBtn").style.display="block";
 
-
 if(navigator.vibrate){
-
 navigator.vibrate(200);
-
 }
 
-
 setTimeout(function(){
-
 document.getElementById("padamBtn").style.display="none";
-
 },10000);
 
-
 })
-.catch(err=>console.log(err));
+.catch(err=>{
+
+console.log(err);
+
+scanLock=false;
+
+});
 
 }
 
