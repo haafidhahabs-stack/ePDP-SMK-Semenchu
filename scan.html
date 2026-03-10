@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Aplikasi e-PDP SMK Semenchu</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
@@ -13,41 +11,55 @@
 body{
 font-family:Arial;
 margin:0;
-background:#f5f5f5;
+background:#f2f2f2;
 }
 
 .header{
 background:#1b5e20;
 color:white;
-padding:15px;
 text-align:center;
-font-size:20px;
+padding:15px;
+font-size:18px;
 }
 
 .container{
 padding:15px;
 }
 
-select,button{
+select{
 width:100%;
-padding:12px;
+padding:10px;
 font-size:16px;
 margin-top:10px;
 }
 
 #reader{
-width:100%;
-margin-top:20px;
+margin-top:15px;
 }
 
-.option{
+.success{
+background:#4caf50;
+color:white;
+padding:12px;
+text-align:center;
+display:none;
+margin-top:10px;
+border-radius:6px;
+}
+
+button{
+margin-top:10px;
+padding:10px;
+width:100%;
+font-size:16px;
+}
+
+.radio{
 margin-top:10px;
 }
 
 </style>
-
 </head>
-
 
 <body>
 
@@ -57,52 +69,58 @@ Aplikasi e-PDP SMK Semenchu
 
 <div class="container">
 
-<select id="guru">
+<select id="namaGuru">
 <option value="">-- Pilih Nama Guru --</option>
 </select>
 
-<div class="option">
-<input type="checkbox" id="gantian">
-<label>Mod Gantian (Pilih Masa Manual)</label>
-</div>
+<br>
 
-<div class="option">
-<input type="radio" name="masa" value="30" checked>30 min
-<input type="radio" name="masa" value="60">60 min
-<input type="radio" name="masa" value="90">90 min
+<label>
+<input type="checkbox" id="modGantian">
+Mod Gantian (Pilih Masa Manual)
+</label>
+
+<div class="radio">
+
+<label><input type="radio" name="masa" value="1" checked>30 min</label>
+<label><input type="radio" name="masa" value="2">60 min</label>
+<label><input type="radio" name="masa" value="3">90 min</label>
+
 </div>
 
 <div id="reader"></div>
+
+<div id="notif" class="success"></div>
+
+<button id="padamBtn" style="display:none;">Padam Scan Ini</button>
 
 </div>
 
 <script>
 
-const API_URL="https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
 
+let lastScan="";
 let lastScanTime=0;
+let lastScanID="";
 
 
-
-/* LOAD NAMA GURU */
+// ================= LOAD GURU =================
 
 async function loadGuru(){
 
-const res=await fetch(API_URL+"?action=guru");
+const response=await fetch(SCRIPT_URL+"?mode=guru");
+const data=await response.json();
 
-const data=await res.json();
+const select=document.getElementById("namaGuru");
 
-const list=data.guru;
+select.innerHTML='<option value="">-- Pilih Nama Guru --</option>';
 
-const select=document.getElementById("guru");
-
-list.forEach(n=>{
+data.guru.forEach(function(nama){
 
 const option=document.createElement("option");
-
-option.value=n;
-
-option.text=n;
+option.value=nama;
+option.textContent=nama;
 
 select.appendChild(option);
 
@@ -110,81 +128,202 @@ select.appendChild(option);
 
 }
 
-loadGuru();
+window.onload=loadGuru;
 
 
+// ================= SLOT PERDANA =================
+
+function getSlotPerdana(){
+
+const now=new Date();
+
+let start=new Date();
+
+start.setHours(7);
+start.setMinutes(30);
+start.setSeconds(0);
+
+let diff=(now-start)/60000;
+
+let slot=Math.floor(diff/30)+1;
+
+if(slot<1) slot=1;
+if(slot>15) slot=15;
+
+return slot;
+
+}
 
 
+// ================= SLOT PPKI =================
+
+function getSlotPPKI(){
+
+const jadual=[
+
+"07:20","07:50","08:20","08:50",
+"09:20","09:50","10:20","10:50",
+"11:20","11:50","12:20","12:50",
+"13:20","13:50"
+
+];
+
+const now=new Date();
+
+let current=now.getHours()*60+now.getMinutes();
+
+let slot=1;
+
+for(let i=0;i<jadual.length;i++){
+
+let t=jadual[i].split(":");
+
+let min=parseInt(t[0])*60+parseInt(t[1]);
+
+if(current>=min){
+
+slot=i+1;
+
+}
+
+}
+
+return slot;
+
+}
+
+
+// ================= SCAN SUCCESS =================
 
 function onScanSuccess(decodedText){
 
 let now=Date.now();
 
-if(now-lastScanTime<3000){
+if(decodedText===lastScan && (now-lastScanTime)<3000){
 return;
 }
 
+lastScan=decodedText;
 lastScanTime=now;
 
 
-let guru=document.getElementById("guru").value;
+const guru=document.getElementById("namaGuru").value;
 
 if(!guru){
+
 alert("Sila pilih nama guru dahulu");
+
 return;
+
 }
 
 
-
-let parts=decodedText.split("|");
-
-let jenis="";
 let kelas=decodedText;
+let jenis="";
 
-if(parts.length>1){
+if(decodedText.includes("RELIF")){
 
-if(parts[0]=="RELIF"){
 jenis="RELIF";
-}
-
-kelas=parts[1];
+kelas=decodedText.replace("RELIF|","");
 
 }
 
 
+// detect PPKI
 
-let masa=document.querySelector('input[name="masa"]:checked').value;
+let slot=0;
 
-let bil=masa/30;
+if(kelas.includes("PPKI")){
 
+slot=getSlotPPKI();
+
+}else{
+
+slot=getSlotPerdana();
+
+}
+
+
+let bil=parseInt(document.querySelector('input[name="masa"]:checked').value);
 
 
 const payload={
 
 guru:guru,
 kelas:kelas,
-slot:masa,
+slot:slot,
 bil:bil,
 jenis:jenis
 
 };
 
 
+fetch(SCRIPT_URL,{
 
-fetch(API_URL,{
 method:"POST",
 body:JSON.stringify(payload)
-})
-.then(r=>r.json())
-.then(res=>{
 
-if(res.ok){
+})
+.then(res=>res.json())
+.then(data=>{
+
+
+if(data.conflict){
+
+alert("⚠ Konflik\nGuru "+data.guru+" telah scan untuk kelas "+kelas);
+return;
+
+}
+
+
+lastScanID=data.id;
+
+
+document.getElementById("notif").innerHTML=
+
+"✔ BERJAYA SCAN<br><br>"+
+"Guru : "+guru+"<br>"+
+"Kelas : "+kelas+"<br>"+
+"Slot : "+slot;
+
+
+document.getElementById("notif").style.display="block";
+
+document.getElementById("padamBtn").style.display="block";
+
+
+if(navigator.vibrate){
 
 navigator.vibrate(200);
 
-alert("Berjaya Scan");
+}
+
+
+setTimeout(function(){
+
+document.getElementById("padamBtn").style.display="none";
+
+},10000);
+
+
+})
+.catch(err=>console.log(err));
 
 }
+
+
+
+// ================= PADAM SCAN =================
+
+document.getElementById("padamBtn").onclick=function(){
+
+fetch(SCRIPT_URL+"?mode=delete&id="+lastScanID)
+.then(r=>r.json())
+.then(data=>{
+
+document.getElementById("notif").innerHTML="Scan dipadam";
+
+document.getElementById("padamBtn").style.display="none";
 
 });
 
@@ -192,26 +331,22 @@ alert("Berjaya Scan");
 
 
 
-
+// ================= START CAMERA =================
 
 const html5QrCode=new Html5Qrcode("reader");
 
-Html5Qrcode.getCameras().then(devices=>{
-
-let cameraId=devices[devices.length-1].id;
-
 html5QrCode.start(
 
-cameraId,
+{ facingMode:"environment" },
+
 {
 fps:10,
 qrbox:250
 },
+
 onScanSuccess
 
 );
-
-});
 
 </script>
 
