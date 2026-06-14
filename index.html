@@ -65,7 +65,53 @@ header{
   margin-left:10px;
 }
 
+.dashboard-layout{
+  display:flex;
+  gap:15px;
+  align-items:flex-start;
+}
+
+.dashboard-panel{
+  width:280px;
+  background:white;
+  padding:15px;
+  border-radius:8px;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);
+  margin-right:10px;
+}
+
+.dashboard-panel h3{
+  margin-top:0;
+  text-align:center;
+}
+
+.stat-box{
+  margin-bottom:12px;
+  padding:8px;
+  border:1px solid #ddd;
+  border-radius:6px;
+}
+
+.stat-title{
+  font-weight:bold;
+  margin-bottom:4px;
+}
+
+#topGuru{
+  font-size:13px;
+  line-height:1.5;
+}
+  
 @media(max-width:768px){
+
+  .dashboard-layout{
+    flex-direction:column;
+  }
+
+  .dashboard-panel{
+    width:auto;
+    margin:10px;
+  }
 
   .school-logo{
     height:50px;
@@ -74,6 +120,16 @@ header{
   .header-title h1{
     font-size:20px;
   }
+
+  .table-container{
+    overflow:auto;
+  }
+
+  table{
+    width:1200px;
+  }
+
+}
 
 }
 /* ===== MENU ===== */
@@ -201,6 +257,9 @@ th{
 
 <!-- ================= UTAMA ================= -->
 <div id="utama" class="section active">
+
+<div class="dashboard-layout">
+
 <div class="table-container">
 <table>
 
@@ -259,6 +318,52 @@ th{
 <tr><td class="kelas">5 SMD</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
 
 </table>
+</div>
+
+<div class="dashboard-panel">
+
+<h3>📊 ANALISIS LIVE</h3>
+
+<div class="stat-box">
+  <div class="stat-title">Scan Hari Ini</div>
+  <div id="scanHariIni">0 / 340</div>
+</div>
+
+<div class="stat-box">
+  <div class="stat-title">Kelas Berlangsung</div>
+  <div id="kelasBerlangsung">0 / 25</div>
+</div>
+
+<div class="stat-box">
+  <div class="stat-title">Guru Aktif</div>
+  <div id="guruAktif">0</div>
+</div>
+
+<div class="stat-box">
+  <div class="stat-title">RELIF Hari Ini</div>
+  <div id="relifHariIni">0</div>
+</div>
+
+<div class="stat-box">
+  <div class="stat-title">Belum Scan</div>
+  <div id="belumScan">0 kelas</div>
+</div>
+
+<div class="stat-box">
+  <div class="stat-title">Top 5 Guru Aktif</div>
+  <div id="topGuru">-</div>
+</div>
+
+<hr>
+
+<h4>Petunjuk Warna</h4>
+
+<p>🟥 Tiada Scan</p>
+<p>🟦 PdP Biasa</p>
+<p>🟪 RELIF</p>
+
+</div>
+
 </div>
 </div>
 
