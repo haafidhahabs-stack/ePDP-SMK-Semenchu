@@ -101,6 +101,21 @@ header{
   font-size:13px;
   line-height:1.5;
 }
+
+.legend-box{
+  display:flex;
+  justify-content:center;
+  gap:20px;
+  margin-top:10px;
+  padding:10px;
+  background:white;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+.legend-box span{
+  white-space:nowrap;
+}
   
 @media(max-width:768px){
 
@@ -318,6 +333,17 @@ th{
 <tr><td class="kelas">5 SMD</td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="slot"></td><td class="off"></td></tr>
 
 </table>
+
+  <div class="legend-box">
+
+<span>🟥 Tiada Scan</span>
+
+<span>🟦 PdP Biasa</span>
+
+<span>🟪 RELIF</span>
+
+</div>
+  
 </div>
 
 <div class="dashboard-panel">
@@ -353,14 +379,6 @@ th{
   <div class="stat-title">Top 5 Guru Aktif</div>
   <div id="topGuru">-</div>
 </div>
-
-<hr>
-
-<h4>Petunjuk Warna</h4>
-
-<p>🟥 Tiada Scan</p>
-<p>🟦 PdP Biasa</p>
-<p>🟪 RELIF</p>
 
 </div>
 
