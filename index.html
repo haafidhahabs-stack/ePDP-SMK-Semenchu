@@ -331,11 +331,27 @@ document.addEventListener(
   loadRekod
 );
 
-/* ===== AUTO REFRESH 5 SAAT ===== */
+/* ===== AUTO REFRESH 30 SAAT ===== */
 setInterval(
   loadRekod,
   30000
 );
+  
+/* ===== RESET BILA BERTUKAR HARI ===== */
+  
+let currentDate = new Date().toDateString();
+
+setInterval(() => {
+
+  const today = new Date().toDateString();
+
+  if(today !== currentDate){
+
+    location.reload();
+
+  }
+
+}, 60000);  
 
 </script>
 
