@@ -21,13 +21,61 @@ body{
 }
 header{
   background:var(--dark);
-  color:#fff;
+  color:white;
+  padding:10px;
+}
+
+.header-wrap{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:15px;
+  flex-wrap:wrap;
+}
+
+.school-logo{
+  height:70px;
+  width:auto;
+}
+
+.header-title{
   text-align:center;
-  padding:12px;
-  font-size:22px;
+}
+
+.header-title h1{
+  margin:0;
+  font-size:28px;
+}
+
+#liveDate{
+  font-size:14px;
+  margin-top:4px;
+}
+
+#liveTime{
+  font-size:16px;
   font-weight:bold;
 }
 
+.live-row{
+  margin-top:5px;
+}
+
+.live-dot{
+  margin-left:10px;
+}
+
+@media(max-width:768px){
+
+  .school-logo{
+    height:50px;
+  }
+
+  .header-title h1{
+    font-size:20px;
+  }
+
+}
 /* ===== MENU ===== */
 nav{
   display:flex;
@@ -116,7 +164,30 @@ th{
 
 <body>
 
-<header>e-PDP SMK Semenchu</header>
+<header>
+
+<div class="header-wrap">
+
+<img src="logo-smk-semenchu.png"
+     class="school-logo"
+     alt="Logo SMK Semenchu">
+
+<div class="header-title">
+
+<h1>e-PDP SMK SEMENCHU</h1>
+
+<div id="liveDate"></div>
+
+<div class="live-row">
+<span id="liveTime"></span>
+<span class="live-dot">🔴 LIVE</span>
+</div>
+
+</div>
+
+</div>
+
+</header>
 
 <nav>
   <button class="active" onclick="show('utama')">UTAMA</button>
@@ -348,7 +419,34 @@ setInterval(() => {
 
 </script>
 
+<script>
 
+function updateClock(){
+
+  const now = new Date();
+
+  document.getElementById("liveDate").innerHTML =
+    now.toLocaleDateString(
+      "ms-MY",
+      {
+        weekday:"long",
+        day:"numeric",
+        month:"long",
+        year:"numeric"
+      }
+    );
+
+  document.getElementById("liveTime").innerHTML =
+    now.toLocaleTimeString("ms-MY");
+
+}
+
+updateClock();
+
+setInterval(updateClock,1000);
+
+</script>
+  
   
 </body>
 </html>
