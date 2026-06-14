@@ -227,33 +227,116 @@ function show(id){
 
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
 
-/* ===== util masa ===== */
-function slotTime(slot){
-  const times = [
-    [7,30],[8,0],[8,30],[9,0],[9,30],[10,0],[10,30],[11,0],
-    [11,30],[12,0],[12,30],[13,0],[13,30],[14,0],[14,30]
-  ];
-  return times[slot-1];
+const API_URL =
+"https://script.google.com/macros/s/AKfycbwNhDgO6VCUC3Vb2JmJZtFVdQfhNtIMGdseFcpsKZhzF1GOUo04f3mxAYne40RZZCjJNQ/exec";
+
+/* ===== RESET SEMUA SLOT ===== */
+function resetJadual(){
+
+  document.querySelectorAll(".slot").forEach(cell=>{
+    cell.style.background="#e53935";
+  });
+
 }
-function toMin(h,m){ return h*60+m; }
 
-/* ===== baca & warnakan jadual ===== */
+/* ===== LOAD DATA DASHBOARD ===== */
 async function loadRekod(){
-  const res = await fetch(API_URL);  const data = await res.json();
-  if(!data.ok) return;
-  const rows = data.rows;
-  rows.forEach(r=>{
-    const kelas = r.Kelas;    const slotMula = Number(r.Slot);    const bil = Number(r.Bil);    const jenis = r.Jenis;
-    const row = [...document.querySelectorAll("td.kelas")]      .find(td => td.textContent.trim() === kelas)      ?.parentElement;
-    if(!row) return;
-    for(let i=0;i<bil;i++){
-      const cell = row.children[slotMula + i];      if(!cell) continue;
-      if(jenis==="RELIF"){        cell.style.background="#9c27b0"; // ungu      }else if(bil>=2){        cell.style.background="#2e7d32"; // hijau      }else{        cell.style.background="#1e88e5"; // biru      }
-    }  });}
 
-document.addEventListener("DOMContentLoaded", loadRekod);
+  try{
+
+    resetJadual();
+
+    const res =
+      await fetch(API_URL + "?mode=dashboard");
+
+    const result =
+      await res.json();
+
+    console.log(result);
+
+    if(result.status !== "success") return;
+
+    const rows = result.data;
+
+    rows.forEach(r=>{
+
+      const kelas =
+        (r.kelas || "")
+        .replace("CLASS|","")
+        .trim();
+
+      const slotMula =
+        Number(r.slot);
+
+      const bil =
+        Number(r.bil || 1);
+
+      const jenis =
+        (r.jenis || "").toUpperCase();
+
+      const row =
+        [...document.querySelectorAll("td.kelas")]
+        .find(td =>
+          td.textContent.trim() === kelas
+        )
+        ?.parentElement;
+
+      if(!row) return;
+
+      for(let i=0;i<bil;i++){
+
+        const cell =
+          row.children[slotMula + i];
+
+        if(!cell) continue;
+
+        if(jenis === "RELIF"){
+
+          cell.style.background =
+            "#9c27b0";
+
+        }
+        else if(bil >= 2){
+
+          cell.style.background =
+            "#2e7d32";
+
+        }
+        else{
+
+          cell.style.background =
+            "#1e88e5";
+
+        }
+
+      }
+
+    });
+
+  }
+  catch(err){
+
+    console.error(
+      "Dashboard Error:",
+      err
+    );
+
+  }
+
+}
+
+/* ===== LOAD PERTAMA ===== */
+document.addEventListener(
+  "DOMContentLoaded",
+  loadRekod
+);
+
+/* ===== AUTO REFRESH 5 SAAT ===== */
+setInterval(
+  loadRekod,
+  5000
+);
 
 </script>
 
