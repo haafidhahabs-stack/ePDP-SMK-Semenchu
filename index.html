@@ -246,7 +246,8 @@ async function loadRekod(){
   try{
 
     resetJadual();
-
+//resetJadual();
+    
     const res =
       await fetch(API_URL + "?mode=dashboard");
 
@@ -335,7 +336,7 @@ document.addEventListener(
 /* ===== AUTO REFRESH 5 SAAT ===== */
 setInterval(
   loadRekod,
-  5000
+  30000
 );
 
 </script>
