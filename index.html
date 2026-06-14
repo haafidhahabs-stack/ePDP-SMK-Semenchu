@@ -478,7 +478,90 @@ document.getElementById("relifHariIni")
 .innerHTML =
 jumlahRelif;
 
+/* ===== SCAN HARI INI (%) ===== */
 
+const peratusScan =
+((jumlahScan / 340) * 100)
+.toFixed(1);
+
+document.getElementById("scanHariIni")
+.innerHTML =
+jumlahScan +
+" / 340<br>(" +
+peratusScan +
+"%)";
+
+
+/* ===== KELAS BERLANGSUNG ===== */
+
+const sekarang = new Date();
+
+const minitSemasa =
+(sekarang.getHours() * 60)
++ sekarang.getMinutes();
+
+const masaSlot = [
+[450,480],   // 1  7:30-8:00
+[480,510],   // 2
+[510,540],   // 3
+[540,570],   // 4
+[570,600],   // 5
+[600,630],   // 6
+[630,660],   // 7
+[660,690],   // 8
+[690,720],   // 9
+[720,750],   //10
+[750,780],   //11
+[780,810],   //12
+[810,840],   //13
+[840,870],   //14
+[870,900]    //15
+];
+
+let slotSemasa = 0;
+
+masaSlot.forEach((s,index)=>{
+
+  if(
+    minitSemasa >= s[0] &&
+    minitSemasa < s[1]
+  ){
+    slotSemasa = index + 1;
+  }
+
+});
+
+
+const kelasSlot =
+[
+ ...new Set(
+   rows
+   .filter(r =>
+      Number(r.slot) === slotSemasa
+   )
+   .map(r =>
+      (r.kelas || "")
+      .replace("CLASS|","")
+      .trim()
+   )
+ )
+];
+
+const kelasBerlangsung =
+kelasSlot.length;
+
+document.getElementById(
+  "kelasBerlangsung"
+).innerHTML =
+kelasBerlangsung + " / 25";
+
+
+document.getElementById(
+  "belumScan"
+).innerHTML =
+(25 - kelasBerlangsung)
++ " kelas";
+    
 /* ===== TOP 5 GURU ===== */
 
 const guruCount = {};
