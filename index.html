@@ -72,7 +72,7 @@ header{
 }
 
 .dashboard-panel{
-  width:280px;
+  width:320px;
   background:white;
   padding:15px;
   border-radius:8px;
@@ -434,6 +434,68 @@ async function loadRekod(){
 
     const rows = result.data;
 
+    /* ===== ANALISIS LIVE ===== */
+
+const jumlahScan = rows.length;
+
+document.getElementById("scanHariIni")
+.innerHTML =
+jumlahScan + " / 340";
+
+
+const guruUnik =
+[...new Set(rows.map(r => r.guru))];
+
+document.getElementById("guruAktif")
+.innerHTML =
+guruUnik.length;
+
+
+const jumlahRelif =
+rows.filter(r =>
+(r.jenis || "").toUpperCase() === "RELIF"
+).length;
+
+document.getElementById("relifHariIni")
+.innerHTML =
+jumlahRelif;
+
+
+/* ===== TOP 5 GURU ===== */
+
+const guruCount = {};
+
+rows.forEach(r=>{
+
+  const guru = r.guru;
+
+  guruCount[guru] =
+  (guruCount[guru] || 0) + 1;
+
+});
+
+const topGuru =
+Object.entries(guruCount)
+
+.sort((a,b)=>
+  b[1]-a[1]
+)
+
+.slice(0,5);
+
+document.getElementById("topGuru")
+.innerHTML =
+topGuru.map((g,i)=>
+
+  (i+1) +
+  ". " +
+  g[0] +
+  " (" +
+  g[1] +
+  ")"
+
+).join("<br>");
+    
     rows.forEach(r=>{
 
       const kelas =
