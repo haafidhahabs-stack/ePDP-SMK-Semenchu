@@ -451,7 +451,8 @@ async function loadRekod(){
     if(result.status !== "success") return;
 
     const rows = result.data;
-
+    resetJadual();
+    
     /* ===== ANALISIS LIVE ===== */
 
 const jumlahScan = rows.length;
@@ -537,12 +538,19 @@ const kelasSlot =
  ...new Set(
    rows
    .filter(r =>
-      Number(r.slot) === slotSemasa
+
+      Number(r.slot) === slotSemasa &&
+
+      (r.jenis || "").toUpperCase() !== "RELIF"
+
    )
-   .map(r =>
+
+   .map(r=>
+
       (r.kelas || "")
       .replace("CLASS|","")
       .trim()
+
    )
  )
 ];
